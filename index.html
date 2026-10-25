@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta name="x-build" content="7f4ccf93a7">
+<meta name="x-build" content="41e73fac00">
 <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
 <meta charset="UTF-8">
 <meta name="theme-color" content="#7CB342">
@@ -2638,6 +2638,9 @@ button.ok,.btn.pri,.switch.on,.page-dots .dot.on,.sc-tab.on,.mm-chip.on,.sv-chip
 
 /* 选择模式下把底部通知条藏起来，别挡住工具条 */
 body.cc-selecting #ntfBar{display:none!important}
+
+/* 非选择模式：不要渲染/显示勾选圈（否则 absolute 定位会跑到别处变成一个白圆圈） */
+.cc-li:not(.pickable) .cc-selbox{display:none!important}
 </style>
 </head>
 <body>
@@ -20362,6 +20365,7 @@ window.mengxiEnsure=mx;
      这里用 pointer 事件实现"跟手横滑 + 松手吸附到整页"，保证一定能翻。 */
   (function bindSwipe() {
     var hp = null, sx = 0, sy = 0, s0 = 0, dragging = false, locked = false, w = 0, moved = false;
+    var dragTarget = 0, rafPending = 0;
     function el0() { return document.getElementById('homePages'); }
     function onDown(e) {
       hp = el0(); if (!hp) return;
@@ -20369,6 +20373,8 @@ window.mengxiEnsure=mx;
       w = hp.clientWidth || 1;
       sx = e.clientX; sy = e.clientY; s0 = hp.scrollLeft;
       dragging = true; locked = false; moved = false;
+      /* 拖动期间关掉 scroll-snap：不然浏览器每写一次 scrollLeft 就想吸附一次，会一跳一跳 */
+      try { hp.style.setProperty('scroll-snap-type', 'none', 'important'); } catch (x) { }
     }
     function onMove(e) {
       if (!dragging || !hp) return;
@@ -20380,7 +20386,17 @@ window.mengxiEnsure=mx;
       }
       moved = true;
       try { e.preventDefault(); } catch (x) { }
-      hp.scrollLeft = s0 - dx;
+      /* rAF 节流：一帧只写一次，避免每个 pointermove 都强制重排 */
+      dragTarget = s0 - dx;
+      if (!rafPending) {
+        rafPending = 1;
+        try {
+          requestAnimationFrame(function () {
+            rafPending = 0;
+            try { if (hp && dragging) hp.scrollLeft = dragTarget; } catch (x) { }
+          });
+        } catch (x) { rafPending = 0; try { hp.scrollLeft = dragTarget } catch (y) { } }
+      }
     }
     function onUp(e) {
       if (!dragging || !hp) { dragging = false; return }
@@ -20391,6 +20407,8 @@ window.mengxiEnsure=mx;
       var page = Math.round(to / w);
       var maxp = Math.max(0, Math.round((hp.scrollWidth - w) / w));
       page = Math.max(0, Math.min(maxp, page));
+      /* 恢复到带吸附，再平滑滚到整页 */
+      try { hp.style.removeProperty('scroll-snap-type'); } catch (x) { }
       if (Math.abs(dx) > 40 || Math.abs(page - Math.round(s0 / w)) > 0) {
         try { hp.scrollTo({ left: page * w, behavior: 'smooth' }) } catch (x) { hp.scrollLeft = page * w }
       } else {
