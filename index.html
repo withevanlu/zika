@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta name="x-build" content="493c874106">
+<meta name="x-build" content="0851080b3e">
 <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
 <meta charset="UTF-8">
 <meta name="theme-color" content="#7CB342">
@@ -18044,7 +18044,10 @@ window.mengxiEnsure=mx;
       '\n\n最近的聊天（他/我）：\n' + (ctx.chat || []).map(function (c) { return (c.from === 'him' ? '他：' : '我：') + c.text }).join('\n') +
       '\n\n我的备忘录：\n' + (ctx.memos || []).join('\n') +
       '\n\n日程：\n' + (ctx.schedule || []).map(function (s) { return s.t + ' ' + s.d }).join('\n') +
-      '\n\n要求：\n1) 浏览记录 8 条，时间分散在一天里，7 条正常 + 1 条无痕(site 填 "—")；标题要贴人设和他关心的事，允许 1 条有点私密。' +
+      '\n\n要求：\n1) 浏览记录 8 条，时间分散在一天里，7 条正常 + 1 条无痕(site 填 "—")。' +
+      ' 【重要】其中至少 3 条必须直接来自上面的「最近的聊天」：聊天里提到过的事、物件、地点、情绪、约定、' +
+      '她要买/想去/担心的东西，就变成对应的搜索或浏览（比如她提过失眠 → 搜「助眠 白噪音」；他说过要提醒她早睡 → 搜「熬夜 危害」）。' +
+      ' 不要写和聊天无关的通用内容（上班、会议、咖啡这种）。允许 1 条有点私密。' +
       '\n2) 备忘录 4~6 条，混着"他自己的事"和"关于我"的，tag 用 self / you。' +
       '\n3) 信息 6 条，按他的人设编他收到的人（秘书、家里、常去的店、朋友、陌生号码等），未读 0~2。' +
       '\n4) 购物 4~6 件，给他自己和给我都买，pr 用 ¥xxx，st 用 已下单/待收货/运输中/已签收，tag 用 给你/给自己，time 用 YYYY-MM-DD HH:MM。' +
@@ -18060,7 +18063,7 @@ window.mengxiEnsure=mx;
     return fetch(base + '/chat/completions', {
       method: 'POST',
       headers: { 'content-type': 'application/json', 'Authorization': 'Bearer ' + cfg.key },
-      body: JSON.stringify({ model: cfg.model || 'gpt-4o-mini', temperature: 0.9, messages: aiPrompt(pr, ctx) })
+      body: JSON.stringify({ model: cfg.model || 'gpt-4o-mini', temperature: 0.65, messages: aiPrompt(pr, ctx) })
     }).then(function (r) {
       if (!r.ok) throw new Error('HTTP ' + r.status);
       return r.json();
@@ -18072,7 +18075,21 @@ window.mengxiEnsure=mx;
       var o = JSON.parse(txt.slice(s, e + 1));
       if (!o || (!o.hist && !o.notes)) throw new Error('JSON 结构不对');
       return o;
-    }).catch(function () { return null });
+    }).catch(function (err) {
+      var msg = String((err && err.message) || err || '未知错误');
+      var friendly = msg;
+      if (/HTTP 401/.test(msg)) friendly = '401 无效的令牌（Key 不对或过期）';
+      else if (/HTTP 402/.test(msg)) friendly = '402 额度不足 / 未充值';
+      else if (/HTTP 403/.test(msg)) friendly = '403 没有权限用这个模型';
+      else if (/HTTP 404/.test(msg)) friendly = '404 找不到接口（base 要写到 /v1）';
+      else if (/HTTP 429/.test(msg)) friendly = '429 请求太频繁，稍等再试';
+      else if (/返回不是 JSON/.test(msg)) friendly = 'AI 返回的不是 JSON（可能被截断）';
+      else if (/JSON 结构不对/.test(msg)) friendly = 'AI 返回的 JSON 结构不对';
+      else if (/Failed to fetch|NetworkError|Load failed/i.test(msg)) friendly = '网络连不上中转站';
+      try { p.lastAIErr = friendly; p.lastAIErrAt = nowTs(); save0(); } catch (e) { }
+      if (window.console && console.warn) console.warn('[查手机] AI 生成失败：' + friendly + '（原始：' + msg + '）');
+      return null;
+    });
   }
 
   /* ---------- 天气（Open-Meteo，免 Key） ---------- */
@@ -18179,6 +18196,7 @@ window.mengxiEnsure=mx;
       p.lastGen = nowTs();
       p.genBy = ai ? 'ai' : 'template';
       save0();
+      window.__phoneGenErr = ai ? '' : (p.lastAIErr || '未配置 API');
       return p.genBy;
     });
   }
@@ -18484,7 +18502,8 @@ window.mengxiEnsure=mx;
     V.view = ''; V.stack = [];
     toast2('人设已保存，只填这一次');
     ensureData().then(function (by) {
-      if (by === 'ai') toast2('已用 AI 生成'); else if (by === 'template') toast2('没配 API，用内置模板生成');
+      if (by === 'ai') toast2('已用 AI 生成');
+      else if (by === 'template') toast2('AI 没成功：' + (window.__phoneGenErr || '未配置 API') + '（先用内置模板）');
     });
   }
 
@@ -18573,7 +18592,7 @@ window.mengxiEnsure=mx;
     el('hpBody').innerHTML = '<div style="display:flex;flex-direction:column;gap:8px;padding:10px 0">'
       + '<div style="display:flex;justify-content:flex-start"><div style="max-width:76%;padding:9px 13px;border-radius:18px;border-bottom-left-radius:6px;background:#2C2C2E;font-size:14.5px;line-height:1.45">' + esc2(m.text) + '</div></div>'
       + '<div style="display:flex;justify-content:flex-end"><div style="max-width:76%;padding:9px 13px;border-radius:18px;border-bottom-right-radius:6px;background:#0A84FF;font-size:14.5px;line-height:1.45">' + esc2(reply) + '</div></div>'
-      + '</div><p class="hp-hint">对话由 AI 按人设生成（没配 API 时是内置模板）。</p>';
+      + '</div><p class="hp-hint">对话由 AI 按人设 + 最近聊天生成（调用失败时才退回内置模板）。</p>';
   }
   /* 购物 */
   function R_shop() {
@@ -18795,7 +18814,7 @@ window.mengxiEnsure=mx;
       p.hist = src.hist || t.hist; p.notes = src.notes || t.notes; p.msgs = src.msgs || t.msgs; p.cart = src.cart || t.cart;
       p.lastGen = nowTs(); p.genBy = ai ? 'ai' : 'template';
       save0();
-      toast2(ai ? '已用 AI 重新生成' : '没配 API，用模板重新生成');
+      toast2(ai ? '已用 AI 重新生成' : ('AI 没成功：' + (window.__phoneGenErr || '未配置 API') + '（先用模板）'));
       if (V.view && V.view !== 'note' && V.view !== 'msg' && V.view !== 'order') renderView(V.view, true);
     });
   }
@@ -19799,7 +19818,7 @@ window.mengxiEnsure=mx;
     if (document.getElementById('introCss')) return;
     var s = document.createElement('style'); s.id = 'introCss';
     s.textContent = [
-      '#zIntro{position:fixed;inset:0;z-index:9999;background:#0B0A09;overflow:hidden;',
+      '#zIntro{position:fixed;inset:0;z-index:9999;background:#0B0A09;overflow:hidden;touch-action:none;',
       'display:flex;align-items:center;justify-content:center;opacity:0;',
       'transition:opacity .28s ease;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}',
       '#zIntro.on{opacity:1}',
@@ -19876,19 +19895,31 @@ window.mengxiEnsure=mx;
     } catch (e) { }
     requestAnimationFrame(function () { d.classList.add('on') });
 
-    var t0 = Date.now(), done = false;
+    var t0 = Date.now(), done = false, shieldUntil = 0;
+    /* 挡板期间：把后续的点击全部吃掉，避免穿到下面的 App 图标 */
+    function block(e) {
+      if (Date.now() < shieldUntil) {
+        try { e.preventDefault(); e.stopPropagation(); } catch (x) { }
+        return false;
+      }
+    }
+    ['click', 'touchstart', 'touchend', 'pointerup', 'mouseup'].forEach(function (n) {
+      document.addEventListener(n, block, { capture: true, passive: false });
+    });
     function finish() {
       if (done) return; done = true;
+      shieldUntil = Date.now() + 900;   /* 900ms 内不让点击穿过去 */
       d.classList.add('out');
       try { document.documentElement.style.overflow = ''; document.body.style.overflow = '' } catch (e) { }
-      setTimeout(function () { if (d.parentNode) d.parentNode.removeChild(d) }, 300);
+      setTimeout(function () { if (d.parentNode) d.parentNode.removeChild(d) }, 900);
     }
     d.addEventListener('pointerdown', function (e) {
       if (Date.now() - t0 < 300) return;          /* 前 300ms 防误触 */
+      try { e.preventDefault(); } catch (x) { }    /* 断掉这次点击后续的 click */
       if (e.target && e.target.closest && e.target.closest('.zskip')) { finish(); return }
       finish();
-    }, { passive: true });
-    d.addEventListener('click', function (e) { e.preventDefault() }, true);
+    }, { passive: false });
+    d.addEventListener('click', function (e) { try { e.preventDefault() } catch (x) { } }, true);
     /* 不再自动进站：动画播完停在画面上，等用户点击 */
     try { document.documentElement.style.overflow = 'hidden'; document.body.style.overflow = 'hidden' } catch (e) { }
   }
@@ -20005,6 +20036,114 @@ window.mengxiEnsure=mx;
   try { setTimeout(applyAll, 700) } catch (e) { }
 
   window.wdUnifyApply = applyAll;
+})();
+
+/* ================= 首页「锁高 + 自动等比缩放」 =================
+   目标：不竖滑、不挤压、不裁切。
+   做法：
+     · 底部小圆点（.page-dots）改成绝对定位，不再占高度
+     · 首页时锁住 <html>/<body> 的滚动（其它页面照旧能滚）
+     · 打开首页先按 --hk=1 量一次"内容自然高度"，算出 可用/内容 的比例，
+       写进 --hk（下限 0.8，上限 1），再校正一次
+     · 内容最多缩到 80%；还放不下就裁掉底部（极少见），并在控制台留一条提示
+   只动首页尺寸与滚动，不改任何组件样式。 */
+(function () {
+  if (window.__homeFit) return; window.__homeFit = 1;
+
+  function css() {
+    if (document.getElementById('homeFitCss')) return;
+    var s = document.createElement('style'); s.id = 'homeFitCss';
+    s.textContent = [
+      /* 圆点浮起来，把高度还给内容 */
+      '#view .cbg{position:relative!important}',
+      '.page-dots{position:absolute!important;left:0;right:0;bottom:2px!important;margin:0!important;z-index:6}',
+      /* 首页占满容器 */
+      '#homePages{height:100%!important;overflow:hidden!important}',
+      '.home-page{height:100%!important;overflow:hidden!important}',
+      '.home-grid{align-content:start!important}',
+      /* 首页时锁滚动（离开首页自动解除） */
+      'html.home-lock,html.home-lock body{height:100%!important;overflow:hidden!important}'
+    ].join('\n');
+    document.head.appendChild(s);
+  }
+
+  function isHome() {
+    /* 先看路由，再看首页 DOM 是否真的可见（换到别的页面时必须解除锁滚动） */
+    var v = (location.hash || '').replace('#', '');
+    if (v && v !== 'home') return false;
+    var hv = document.querySelector('.home-view') || document.getElementById('homePages');
+    if (!hv) return false;
+    return !!(hv.offsetWidth || hv.offsetHeight);
+  }
+
+  function lockScroll() {
+    try { document.documentElement.classList.toggle('home-lock', isHome()); } catch (e) { }
+  }
+
+  function fit() {
+    try {
+      css();
+      var hp = document.getElementById('homePages');
+      if (!hp) return;
+      var page = hp.querySelector('.home-page');
+      if (!page) return;
+      var root = document.documentElement;
+
+      /* 第一遍：回到 1 倍，量自然高度 */
+      root.style.setProperty('--hk', '1');
+      void page.offsetHeight;
+      var avail = hp.clientHeight || Math.round(hp.getBoundingClientRect().height);
+      var need = page.scrollHeight || Math.round(page.getBoundingClientRect().height);
+      if (!avail || !need) return;
+      var k = 1;
+      if (need > avail + 1) k = Math.max(0.8, avail / need);
+      root.style.setProperty('--hk', k.toFixed(3));
+
+      /* 第二遍：缩放后重新量一次，避免"缩了还是差一点" */
+      requestAnimationFrame(function () {
+        try {
+          var avail2 = hp.clientHeight, need2 = page.scrollHeight;
+          if (need2 > avail2 + 1) {
+            var k2 = Math.max(0.8, k * (avail2 / need2));
+            root.style.setProperty('--hk', k2.toFixed(3));
+            if (k2 <= 0.8001) {
+              try { console.warn('[首页] 内容超出屏幕，已缩到最小 80%，底部会裁掉一点。可用高度 ' + avail2 + 'px，需要 ' + need2 + 'px'); } catch (e) { }
+            }
+          }
+          lockScroll();
+        } catch (e) { }
+      });
+    } catch (e) { }
+  }
+
+  /* 每次渲染首页 / 换页面 / 旋转屏幕 都重新适配 */
+  if (typeof goView === 'function' && !window.__homeFitGoView) {
+    window.__homeFitGoView = 1;
+    var _gv = goView;
+    goView = function () {
+      var r = _gv.apply(this, arguments);
+      setTimeout(fit, 60); setTimeout(fit, 420);
+      return r;
+    };
+  }
+  if (typeof renderHome === 'function' && !window.__homeFitHook) {
+    window.__homeFitHook = 1;
+    var _rh = renderHome;
+    renderHome = function () {
+      var r = _rh.apply(this, arguments);
+      setTimeout(fit, 60);
+      return r;
+    };
+  }
+
+  try {
+    window.addEventListener('hashchange', function () { lockScroll(); setTimeout(lockScroll, 80) });
+    window.addEventListener('resize', function () { setTimeout(fit, 120) });
+    window.addEventListener('orientationchange', function () { setTimeout(fit, 300) });
+    if (window.visualViewport) window.visualViewport.addEventListener('resize', function () { setTimeout(fit, 150) });
+  } catch (e) { }
+  try { setTimeout(fit, 300); setTimeout(fit, 900); } catch (e) { }
+  window.homeFitRun = fit;
 })();
 </script>
 <div id="ntfBar" style="display:none" onclick="ntfGo()"></div>
