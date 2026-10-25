@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta name="x-build" content="1135f76aa8">
+<meta name="x-build" content="493c874106">
 <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
 <meta charset="UTF-8">
 <meta name="theme-color" content="#7CB342">
@@ -14072,6 +14072,7 @@ function heditTapItem(el) {
   try { toast('组件请选中后点空白格子放') } catch (e) { }
 }
 (function bindHomeEdit() {
+  if (1) return;   /* 已停用：按用户要求删掉「长按空白进入编辑」 */
   if (window.__heditBound) return; window.__heditBound = 1;
 
   /* 点：编辑模式下拦掉 App 打开 */
@@ -16305,17 +16306,15 @@ function roomShop() {
 /* ===== PWA：注册 Service Worker（离线 + 桌面图标） ===== */
 (function () {
   if (!('serviceWorker' in navigator)) return;
-  /* 新站仓库不带 sw.js：这里主动注销旧 SW 并清掉 zika 缓存，避免 404 和旧缓存卡住更新 */
   try {
-    navigator.serviceWorker.getRegistrations().then(function (rs) {
-      for (var i = 0; i < rs.length; i++) { try { rs[i].unregister() } catch (e) { } }
-    }).catch(function () { });
-    if (window.caches && caches.keys) {
-      caches.keys().then(function (ks) {
-        for (var i = 0; i < ks.length; i++) { if (/^zika-v/.test(ks[i])) { try { caches.delete(ks[i]) } catch (e) { } } }
-      }).catch(function () { });
-    }
+    navigator.serviceWorker.getRegistrations().then(function (rs) { for (var i = 0; i < rs.length; i++) { try { rs[i].unregister() } catch (e) { } } }).catch(function () { });
+    if (window.caches && caches.keys) { caches.keys().then(function (ks) { for (var i = 0; i < ks.length; i++) { if (/^zika-v/.test(ks[i])) { try { caches.delete(ks[i]) } catch (e) { } } } }).catch(function () { }); }
   } catch (e) { }
+  if (0) {
+  var _h=location.hostname;
+  var _secure=(location.protocol==='https:')||(_h==='localhost')||(_h==='127.0.0.1')||(_h==='[::1]');
+  if (!_secure && location.protocol !== 'file:') return;
+  }
   if (0) window.addEventListener('load', function () {
     Promise.reject(new Error('nosw')).then(function (r) {
       /* 有新 SW 在等：直接让它接管（配合页面的版本检测，刷新即可拿到新版） */
@@ -17333,7 +17332,7 @@ window.mengxiEnsure=mx;
       '.home-grid>.app-item .app-icon svg{width:calc(26px*var(--hk))!important;height:calc(26px*var(--hk))!important}',
       '.home-grid>.app-item span{font-size:calc(13px*var(--hk))!important}',
       /* 页面高度写死，不竖向滚动 */
-      '.home-pages{overflow-y:hidden!important;height:100%!important;align-items:flex-start!important}',
+      '.home-pages{overflow-y:hidden!important;height:100dvh!important;max-height:100dvh!important;align-items:flex-start!important}',
       '.home-page{height:100%!important;overflow:hidden!important;display:flex!important;flex-direction:column!important}',
       '.home-page .home-grid{flex:0 0 auto}',
       /* 去掉「＋ 添加组件」 */
@@ -17359,14 +17358,14 @@ window.mengxiEnsure=mx;
       '.w2-duo{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:calc(8px*var(--hk));padding:calc(12px*var(--hk)) calc(14px*var(--hk))}',
       '.w2-duo-row{display:flex;align-items:center;width:calc(250px*var(--hk));max-width:100%}',
       '.w2-av{width:calc(56px*var(--hk));height:calc(56px*var(--hk));border-radius:50%;flex:0 0 auto;background:#fff;z-index:2;overflow:hidden;',
-      'display:flex;align-items:center;justify-content:center;font-weight:700;font-size:calc(19px*var(--hk));color:#111214;box-shadow:0 0 0 1.5px #111214}',
+      'display:flex;align-items:center;justify-content:center;font-weight:700;font-size:calc(19px*var(--hk));color:#111214;box-shadow:0 0 0 1.5px rgba(17,18,20,.28)}',
       '.w2-av img,.w2-av svg{width:100%;height:100%;object-fit:cover;display:block;border-radius:50%}',
       '.w2-av>i{width:100%;height:100%;display:flex;align-items:center;justify-content:center;border-radius:50%;',
       'font-style:normal;font-size:calc(20px*var(--hk));color:#fff;font-weight:700}',
-      '.w2-line{flex:1;height:calc(56px*var(--hk));z-index:1;display:block}',
-      '.w2-line svg{width:100%;height:calc(52px*var(--hk));overflow:visible;display:block}',
-      '.w2-ecg{stroke:#111214;stroke-width:2.2;fill:none;stroke-linecap:round;stroke-linejoin:round}',
-      '.w2-bead{fill:#111214}',
+      '.w2-line{flex:1;height:calc(56px*var(--hk));z-index:1;display:block;margin:0 calc(-6px*var(--hk))}',
+      '.w2-line svg{width:100%;height:100%;overflow:visible;display:block}',
+      '.w2-ecg{stroke:rgba(17,18,20,.32);stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round}',
+      '.w2-bead{fill:rgba(17,18,20,.34)}',
       '.w2-duo-names{display:flex;justify-content:space-between;width:100%;max-width:calc(250px*var(--hk));padding:0 calc(18px*var(--hk))}',
       '.w2-duo-names b{font-size:calc(11px*var(--hk));font-weight:700;color:#111214}',
       '.w2-duo-dist{font-size:calc(10px*var(--hk));color:#6E6E73!important;letter-spacing:1.2px}',
@@ -17518,7 +17517,7 @@ window.mengxiEnsure=mx;
 (function () {
   if (window.__wbgSet) return; window.__wbgSet = 1;
 
-  var DEFS = [['feed', '陆沉动态'], ['duo', '一起听'], ['cal', '日历'], ['player', '音乐播放器']];
+  var DEFS = [['feed', '陆沉动态'], ['duo', '一起听'], ['cal', '日历'], ['player', '音乐播放器'], ['status', '陆沉状态卡']];
   function refOf(k) { var m = state.widgetImgs || {}; return m[k] && !mediaDead(m[k]) ? m[k] : '' }
 
   function blockHtml() {
@@ -19817,11 +19816,9 @@ window.mengxiEnsure=mx;
       '#zIntro .zbody{position:absolute;left:26px;right:26px;bottom:14%;text-align:left}',
       '#zIntro .crest{position:absolute;left:50%;top:23%;width:min(94vw,400px);transform:translateX(-50%);opacity:0;',
       'animation:zCrestIn 1.8s .45s cubic-bezier(.2,1,.3,1) forwards,zCrestBreath 9s 2.6s ease-in-out infinite}',
-      '#zIntro .crest img{width:100%;display:block;filter:drop-shadow(0 0 26px rgba(196,164,116,.20))}',
+      '#zIntro .crest img{width:100%;display:block}',
       '@keyframes zCrestIn{from{opacity:0;transform:translateX(-50%) scale(.9) rotate(-3deg)}to{opacity:1;transform:translateX(-50%) scale(1) rotate(0)}}',
       '@keyframes zCrestBreath{0%,100%{transform:translateX(-50%) scale(1);opacity:1}50%{transform:translateX(-50%) scale(1.02);opacity:.92}}',
-      '#zIntro .cglow{position:absolute;inset:-14%;border-radius:50%;pointer-events:none;',
-      'background:radial-gradient(circle at 50% 46%,rgba(201,164,106,.28),rgba(201,164,106,.10) 42%,transparent 68%);',
       'filter:blur(6px);animation:zGlow 7s 1.4s ease-in-out infinite}',
       '@keyframes zGlow{0%,100%{opacity:.55;transform:scale(1)}50%{opacity:.95;transform:scale(1.05)}}',
       '#zIntro .csheen{position:absolute;inset:0;pointer-events:none;mix-blend-mode:screen;opacity:0;',
@@ -19844,7 +19841,7 @@ window.mengxiEnsure=mx;
       'border:1px solid rgba(255,255,255,.16);background:rgba(0,0,0,.22);color:rgba(255,255,255,.66);font-size:11px;',
       'padding:6px 12px;border-radius:99px;font-family:inherit;letter-spacing:.06em;backdrop-filter:blur(8px)}',
       '#zIntro.reduce .crest,#zIntro.reduce .zname,#zIntro.reduce .zlatin,#zIntro.reduce .znote,#zIntro.reduce .zx-top,',
-      '#zIntro.reduce .cglow,#zIntro.reduce .csheen{animation:none!important;opacity:1!important;filter:none!important}',
+      '#zIntro.reduce .csheen{animation:none!important;opacity:1!important;filter:none!important}',
       '#zIntro.reduce .grain{display:none}'
     ].join('\n');
     document.head.appendChild(s);
@@ -19858,7 +19855,7 @@ window.mengxiEnsure=mx;
     d.className = reduce ? 'reduce' : '';
     d.innerHTML = '<div class="grain"></div><div class="vig"></div>'
       + '<div class="zx-top"><b>光启市 · 雨</b><i></i></div>'
-      + '<div class="crest"><div class="cglow"></div><img alt="" src="' + CREST + '"><div class="csheen"></div></div>'
+      + '<div class="crest"><img alt="" src="' + CREST + '"><div class="csheen"></div></div>'
       + '<div class="zbody"><div class="zname"><span>与</span><span>沉</span></div>'
       + '<div class="zlatin">L U &nbsp; C H E N</div>'
       + '<div class="znote">这世界终将依我的意志前行。</div></div>'
@@ -19898,6 +19895,116 @@ window.mengxiEnsure=mx;
 
   if (document.body) build();
   else document.addEventListener('DOMContentLoaded', build);
+})();
+
+/* ================= 组件「材质」统一 + 状态卡底图 =================
+   问题：第一页的新组件（一起听/日历/播放器/动态）用的是"卡内一层图"，而第二三页的旧组件是把图
+        直接铺成卡片背景（background-image:var(--wbg)），没有遮罩 → 图直接怼在文字下面，很突兀。
+   做法：所有带底图的组件统一成同一套材质：
+         · 卡内一层 .w2-bg（cover，跟着卡片圆角裁切）
+         · 上面一层 .w2-veil（白色渐变薄纱，让文字始终看得清）
+         · 内容再上一层（z-index），卡片底色仍为白
+         · 旧组件的 --wbg 背景图改成 none，避免和卡内层重复叠
+   另外：给「陆沉状态卡」(.status-card) 也支持底图（state.widgetImgs.status）。
+   只动"有底图"的卡片；没传底图的卡片完全不受影响。 */
+(function () {
+  if (window.__wdUnify) return; window.__wdUnify = 1;
+
+  function css() {
+    if (document.getElementById('wdUnifyCss')) return;
+    var s = document.createElement('style'); s.id = 'wdUnifyCss';
+    s.textContent = [
+      /* 旧组件：图仍旧铺在卡片背景上，但先压一层 55% 白纱 —— 观感接近第一页的"淡图"，
+         又不用插实体图层（避免被卡片内部的白块挡成半截）。组件其它样式一律不动。 */
+      '.bs-wbg{background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important}',
+      /* 状态卡顶上那条自带的渐变遮片会挡住底图，有底图时让它透明 */
+      '.status-card.haswbg .sc-cover{background:transparent!important;background-image:none!important}',
+      '.status-card.haswbg{border-radius:20px!important}'
+    ].join('\n');
+    document.head.appendChild(s);
+  }
+
+  function refUrl(k) {
+    try {
+      var m = state.widgetImgs || {}, ref = m[k];
+      if (!ref || (typeof mediaDead === 'function' && mediaDead(ref))) return '';
+      var u = (typeof mediaUrlSync === 'function') ? mediaUrlSync(ref) : '';
+      return u || '';
+    } catch (e) { return '' }
+  }
+
+  function ensureLayers(el, url) {
+    if (!el || !url) return;
+    el.classList.add('haswbg'); el.classList.add('bs-wbg');
+    /* 55% 白纱压在图上，字始终看得清；再淡一点就是 45% */
+    var wash = 'linear-gradient(rgba(255,255,255,.55),rgba(255,255,255,.55))';
+    try {
+      var img = wash + ', url("' + url + '")';
+      el.style.setProperty('background-image', img, 'important');
+      el.style.setProperty('background-size', 'cover', 'important');
+      el.style.setProperty('background-position', 'center', 'important');
+      el.style.setProperty('background-repeat', 'no-repeat', 'important');
+    } catch (e) { }
+    var bg = el.querySelector(':scope > .w2-bg'); if (bg) bg.remove();
+    var oldVeil = el.querySelector(':scope > .w2-veil'); if (oldVeil) oldVeil.remove();
+  }
+
+  function urlFromInline(el) {
+    try {
+      var v = el.style.getPropertyValue('--wbg') || '';
+      var m = /url\(['"]?([^'")]+)['"]?\)/.exec(v);
+      return m ? m[1] : '';
+    } catch (e) { return '' }
+  }
+
+  function applyAll() {
+    try {
+      css();
+      /* 1）小组件：按 data-wkey 找图；没有 data-wkey 的退而用内联 --wbg */
+      var KEEP = { feed: 1, duo: 1, cal: 1, player: 1 };   /* 第一页这四个本来就有单独图层，保持不动 */
+      var ws = document.querySelectorAll('.widget, .hg-widget');
+      for (var i = 0; i < ws.length; i++) {
+        var el = ws[i];
+        var k = el.getAttribute('data-wkey') || '';
+        if (KEEP[k]) continue;
+        var url = (k && refUrl(k)) || urlFromInline(el);
+        if (url) ensureLayers(el, url);
+        else if (el.classList.contains('haswbg') && !el.querySelector(':scope > .w2-bg')) {
+          /* 有 haswbg 但图已在卡片背景上（旧路径）：搬进卡内层 */
+          var u2 = urlFromInline(el);
+          if (u2) ensureLayers(el, u2);
+        }
+      }
+      /* 2）陆沉状态卡 */
+      var sc = document.querySelector('.status-card');
+      if (sc) {
+        var su = refUrl('status');
+        if (su) ensureLayers(sc, su);
+      }
+    } catch (e) { }
+  }
+
+  /* 首页每次渲染后跑一遍 */
+  if (typeof renderHome === 'function' && !window.__wdUnifyHook) {
+    window.__wdUnifyHook = 1;
+    var _rh = renderHome;
+    renderHome = function () {
+      var r = _rh.apply(this, arguments);
+      try { applyAll() } catch (e) { }
+      return r;
+    };
+  }
+  try {
+    var t = 0;
+    var mo = new MutationObserver(function () {
+      clearTimeout(t);
+      t = setTimeout(applyAll, 120);
+    });
+    mo.observe(document.body, { childList: true, subtree: true });
+  } catch (e) { }
+  try { setTimeout(applyAll, 700) } catch (e) { }
+
+  window.wdUnifyApply = applyAll;
 })();
 </script>
 <div id="ntfBar" style="display:none" onclick="ntfGo()"></div>
