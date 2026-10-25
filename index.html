@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta name="x-build" content="0851080b3e">
+<meta name="x-build" content="7f4ccf93a7">
 <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
 <meta charset="UTF-8">
 <meta name="theme-color" content="#7CB342">
@@ -2597,6 +2597,47 @@ button.ok,.btn.pri,.switch.on,.page-dots .dot.on,.sc-tab.on,.mm-chip.on,.sv-chip
    否则探出部分会被聊天滚动容器裁掉（用户报的"显示不全"）。 */
 #view.bs-custom .msg-row { padding-top:7px; padding-bottom:7px; }
 #view.bs-custom .msg-col .bubble { overflow:visible; }
+
+
+/* 字卡库「全部」视图：每张卡下面标出它属于哪个分类 */
+.cc-ctag{display:inline-block;margin-left:8px;font-style:normal;font-size:10px;letter-spacing:.02em;
+  padding:1px 6px;border-radius:5px;background:rgba(17,18,20,.05);color:#6E6A67;vertical-align:middle}
+
+
+/* ===== 字卡库：批量选择 / 移动分类 ===== */
+.cc-li.pickable{padding-left:34px;position:relative;cursor:pointer}
+.cc-selbox{position:absolute;left:10px;top:50%;width:18px;height:18px;margin-top:-9px;border-radius:50%;
+  border:1.5px solid rgba(17,18,20,.22);background:#fff;display:block}
+.cc-selbox.on{background:#111214;border-color:#111214}
+.cc-selbox.on::after{content:"";position:absolute;left:50%;top:50%;width:7px;height:7px;margin:-3.5px 0 0 -3.5px;
+  border-radius:50%;background:#fff}
+.cc-li.picked{border-color:#111214!important;box-shadow:inset 0 0 0 1.5px #111214}
+.cc-selbar{position:fixed;left:0;right:0;bottom:0;z-index:130;display:flex;align-items:center;gap:8px;
+  padding:10px 12px calc(12px + env(safe-area-inset-bottom));background:rgba(251,250,249,.96);
+  backdrop-filter:blur(14px);border-top:1px solid rgba(17,18,20,.08)}
+.cc-selbar span{font-size:12.5px;color:#3A3B3E;font-weight:600}
+.cc-selbar span b{font-size:15px}
+.cc-selbar .cc-sp{flex:1}
+.cc-selbar .cc-btn{font-size:12.5px;padding:8px 12px}
+.cc-btn.dark{background:#111214!important;border-color:#111214!important;color:#fff!important}
+/* 移动弹层 */
+#ccMoveBox{position:fixed;inset:0;z-index:80}
+#ccMoveBox .cc-mv-mask{position:absolute;inset:0;background:rgba(20,18,17,.34)}
+#ccMoveBox .cc-mv-sheet{position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:22px 22px 0 0;
+  padding:16px 16px calc(16px + env(safe-area-inset-bottom));max-height:78%;overflow-y:auto;
+  box-shadow:0 -12px 40px rgba(40,30,25,.18)}
+#ccMoveBox h3{font-size:16px;font-weight:700;margin-bottom:4px}
+#ccMoveBox .cc-mv-hint{font-size:11.5px;color:#8A827D;line-height:1.6;margin-bottom:12px}
+#ccMoveBox .cc-mv{display:flex;align-items:center;gap:8px;padding:12px 13px;border:1px solid rgba(17,18,20,.1);
+  border-radius:13px;margin-bottom:8px;background:#fff}
+#ccMoveBox .cc-mv b{font-size:14px;font-weight:600;color:#111214}
+#ccMoveBox .cc-mv i{margin-left:auto;font-style:normal;font-size:11.5px;color:#8A827D}
+#ccMoveBox .cc-mv.new{border-style:dashed;color:#6E6A67}
+#ccMoveBox .cc-mv-row{margin-top:10px}
+#ccMoveBox .cc-btn{width:100%;padding:12px;border-radius:13px;font-size:14px}
+
+/* 选择模式下把底部通知条藏起来，别挡住工具条 */
+body.cc-selecting #ntfBar{display:none!important}
 </style>
 </head>
 <body>
@@ -15207,7 +15248,10 @@ function pgSetLastFromSheet(offset) {
     { n: '拍一拍', pool: 'patCards' },
     { n: '日记', pool: 'diaryCards' }
   ];
-  var cur = '日常';       /* 当前分类 */
+  var cur = '全部';       /* 当前分类（默认看全部聊天字卡） */
+  var selMode = false;    /* 批量选择模式 */
+  var picked = {};        /* 选中的卡：key = tag\u0001text */
+  function kOf(x) { return String((x && x.tag) || '') + '\u0001' + String((x && x.text) || '') }
   var mgrOpen = false;
 
   function fixedDef(name) { for (var i = 0; i < FIXED.length; i++) if (FIXED[i].n === name) return FIXED[i]; return null }
@@ -15217,6 +15261,14 @@ function pgSetLastFromSheet(offset) {
     if (fixedDef(name)) {
       var arr = poolOf(name);
       for (var i = 0; i < arr.length; i++) { var x = arr[i]; if (x && String(x.text || '').trim()) out.push(x) }
+      return out;
+    }
+    /* 「全部」：所有聊天字卡（不分分类），按添加时间倒序 */
+    if (name === '全部') {
+      (state.cards || []).forEach(function (c) {
+        if (c && String(c.text || '').trim()) out.push(c);
+      });
+      out.sort(function (a, b) { return (b.created || 0) - (a.created || 0) });
       return out;
     }
     /* 普通分类：只取 state.cards 里属于这个 tag 的 */
@@ -15232,7 +15284,7 @@ function pgSetLastFromSheet(offset) {
     return out;
   }
   function allCats() {
-    var out = FIXED.map(function (d) { return d.n }).concat(normalCats());
+    var out = ['全部'].concat(FIXED.map(function (d) { return d.n })).concat(normalCats());
     if (state.cards && state.cards.some(function (c) { return c && !c.tag })) out.push('未分类');
     return out;
   }
@@ -15261,14 +15313,17 @@ function pgSetLastFromSheet(offset) {
     var rows = list.map(function (x) {
       /* ★ 只锁「分类」，不锁卡：固定分类（小熊语录/状态/心情/拍一拍/日记）里的每一张也能删。
          删掉后不会被默认值填回来 —— delCard 里会记 _smDeleted。 */
-      var del = '<span class="cc-x" data-act="cc-del" data-c="' + esc2(cur) + '" data-t="' + esc2(x.text) + '">✕</span>';
-      return '<div class="cc-li"><span class="cc-t">' + esc2(x.text) + '</span>' + del + '</div>';
+      var del = selMode ? '' : '<span class="cc-x" data-act="cc-del" data-c="' + esc2(cur) + '" data-t="' + esc2(x.text) + '">✕</span>';
+      var tagTip = (cur === '全部') ? ('<i class="cc-ctag">' + esc2(x.tag || '未分类') + '</i>') : '';
+      var box = '<i class="cc-selbox' + (picked[kOf(x)] ? ' on' : '') + '"></i>';
+      return '<div class="cc-li' + (selMode ? ' pickable' : '') + (picked[kOf(x)] ? ' picked' : '') + '" data-k="' + esc2(kOf(x)) + '">'
+        + box + '<span class="cc-t">' + esc2(x.text) + tagTip + '</span>' + del + '</div>';
     }).join('');
     if (!list.length) rows = '<div class="cc-li" style="color:#6B6D72">这个分类还没有内容，上面输入就能加</div>';
 
     /* ★ 交流情绪：普通分类可以选"情绪倾向"（只影响他聊天里挂的情绪标签，不影响抽卡） */
     var moodRow = '';
-    if (!isFixed) {
+    if (!isFixed && cur !== '全部') {
       var curLv = (typeof moodCatLevel === 'function') ? moodCatLevel(cur) : 'auto';
       var lvs = [['neg', '偏负面'], ['pos', '偏正面'], ['close', '亲密'], ['mid', '中性'], ['auto', '自动']];
       var btns = lvs.map(function (x) {
@@ -15279,7 +15334,9 @@ function pgSetLastFromSheet(offset) {
         + '<div class="cc-moodnote">只决定他抽到这类卡时挂什么情绪标签，不影响抽卡、不改字卡本身</div>';
     }
 
-    var h = '<div class="page-top"><button class="back" data-view="home">' + ICON_BACK + '</button><span class="pt">字卡</span></div>'
+    var h = '<div class="page-top"><button class="back" data-view="home">' + ICON_BACK + '</button><span class="pt">字卡</span>'
+      + (selMode ? '<button class="cc-btn ghost" data-act="cc-sel" style="margin-left:auto;font-size:12.5px;padding:7px 12px;border-radius:99px">完成</button>' : '')
+      + '</div>'
       + '<div class="cc-wrap">'
       + '<textarea id="ccInput" class="cc-ta" placeholder="一行一张，可以一次粘贴一大段"></textarea>'
       + '<div class="cc-cats">' + chips + '</div>'
@@ -15287,14 +15344,17 @@ function pgSetLastFromSheet(offset) {
       + '<div class="cc-row"><button class="cc-btn" data-act="cc-add">添加</button>'
       + '<button class="cc-btn ghost" data-act="cc-newcat">＋ 新分类</button>'
       + '<button class="cc-btn ghost" data-act="cc-manage">管理分类</button>'
-      + '<button class="cc-btn ghost" data-act="cc-batch">批量导入</button></div>'
+      + '<button class="cc-btn ghost" data-act="cc-batch">批量导入</button>'
+      + (!selMode && (cur === '全部' || !isFixed) ? '<button class="cc-btn ghost" data-act="cc-sel">选择</button>' : '')
+      + '</div>'
       + '<div class="cc-msg" id="ccMsg"></div>'
       + '<div class="cc-grp"><span>' + esc2(cur) + '</span><b>' + list.length + ' 张</b>' + (isFixed ? '<i class="cc-fx">固定</i>' : '')
-      + (fixedDef(cur) ? '' : '<button class="cc-mute' + ((state.mutedCats || []).indexOf(cur) >= 0 ? ' on' : '') + '" data-act="cc-mute" data-c="' + esc2(cur) + '">' + ((state.mutedCats || []).indexOf(cur) >= 0 ? '已屏蔽' : '屏蔽') + '</button>')
+      + (fixedDef(cur) || cur === '全部' ? '' : '<button class="cc-mute' + ((state.mutedCats || []).indexOf(cur) >= 0 ? ' on' : '') + '" data-act="cc-mute" data-c="' + esc2(cur) + '">' + ((state.mutedCats || []).indexOf(cur) >= 0 ? '已屏蔽' : '屏蔽') + '</button>')
       + '</div>'
       + '<div class="cc-list">' + rows + '</div>'
       + '<div style="height:30px"></div></div>';
     $('#view').innerHTML = h;
+    syncSelBar();
     if (mgrOpen) openManage();
   };
 
@@ -15341,6 +15401,126 @@ function pgSetLastFromSheet(offset) {
     }
     try { cardLibChanged() } catch (e) { }
     save(); renderCards(); toast('已删除');
+  }
+
+
+
+  /* 选择模式的底部工具条：挂在 body 上（放在 #view 里会被页面 transform 影响，fixed 定位会飘） */
+  function syncSelBar() {
+    try {
+      var bar = document.getElementById('ccSelBar');
+      if (!selMode) {
+        if (bar) bar.remove();
+        document.body.classList.remove('cc-selecting');
+        return;
+      }
+      document.body.classList.add('cc-selecting');
+      if (!bar) {
+        bar = document.createElement('div');
+        bar.id = 'ccSelBar'; bar.className = 'cc-selbar';
+        document.body.appendChild(bar);
+        bar.addEventListener('click', function (e) {
+          var a = e.target.closest('[data-act]'); if (!a) return;
+          var act = a.getAttribute('data-act');
+          if (act === 'cc-sel-all') {
+            e.preventDefault();
+            var shown = itemsOf(cur);
+            var all = shown.length && shown.every(function (x) { return picked[kOf(x)] });
+            picked = {};
+            if (!all) shown.forEach(function (x) { picked[kOf(x)] = x });
+            renderCards(); return;
+          }
+          if (act === 'cc-sel-cancel') {
+            e.preventDefault(); selMode = false; picked = {}; renderCards(); return;
+          }
+          if (act === 'cc-sel-move') {
+            e.preventDefault();
+            var n = Object.keys(picked).length;
+            if (!n) { toast('先选几张字卡'); return }
+            openMoveSheet(n); return;
+          }
+        });
+      }
+      bar.innerHTML = '<span>已选 <b>' + Object.keys(picked).length + '</b> 张</span><i class="cc-sp"></i>'
+        + '<button class="cc-btn ghost" data-act="cc-sel-all">全选</button>'
+        + '<button class="cc-btn dark" data-act="cc-sel-move">移动到分类</button>'
+        + '<button class="cc-btn ghost" data-act="cc-sel-cancel">取消</button>';
+    } catch (e) { }
+  }
+
+  /* ---------- 批量移动到分类 ---------- */
+  function openMoveSheet(n) {
+    var cats = normalCats().slice();
+    if (state.cards && state.cards.some(function (c) { return c && !c.tag })) cats.push('未分类');
+    var rows = cats.map(function (c) {
+      var cnt = 0;
+      (state.cards || []).forEach(function (x) { if (x && String(x.text || '').trim() && ((x.tag || '') === (c === '未分类' ? '' : c))) cnt++ });
+      return '<div class="cc-mv" data-mv="' + esc2(c) + '"><b>' + esc2(c) + '</b><i>' + cnt + ' 张</i></div>';
+    }).join('');
+    var box = document.createElement('div');
+    box.id = 'ccMoveBox';
+    box.innerHTML = '<div class="cc-mv-mask" data-mvclose="1"></div>'
+      + '<div class="cc-mv-sheet"><h3>移动到分类</h3>'
+      + '<div class="cc-mv-hint">已选 ' + n + ' 张字卡，选一个分类就批量移过去；卡片内容和别的分类都不动。</div>'
+      + rows
+      + '<div class="cc-mv new" data-mv="__new"><b>＋ 新建分类…</b></div>'
+      + '<div class="cc-mv-row"><button class="cc-btn ghost" data-mvclose="1">取消</button></div></div>';
+    document.body.appendChild(box);
+    box.addEventListener('click', function (e) {
+      if (e.target.closest('[data-mvclose]')) { box.remove(); return }
+      var it = e.target.closest('[data-mv]');
+      if (!it) return;
+      var val = it.getAttribute('data-mv');
+      if (val === '__new') {
+        box.remove();
+        var nm = window.prompt('新分类名字（例：妻文学 / 想哄我）', '');
+        nm = String(nm || '').trim();
+        if (!nm) { toast('没写名字，已取消'); return }
+        if (fixedDef(nm)) { toast('这个名字被固定分类占用了'); return }
+        state.cardCats = state.cardCats || [];
+        if (state.cardCats.indexOf(nm) < 0) state.cardCats.push(nm);
+        applyMove(nm);
+        return;
+      }
+      box.remove();
+      applyMove(val);
+    });
+  }
+
+  function applyMove(cat) {
+    var cnt = Object.keys(picked).length;
+    /* 大批量先确认一次，避免"全选后误点"把整库搬走 */
+    if (cnt > 50 && !window.__ccMoveOK) {
+      var box = document.createElement('div');
+      box.id = 'ccMoveBox';
+      box.innerHTML = '<div class="cc-mv-mask"></div><div class="cc-mv-sheet">'
+        + '<h3>确定移动 ' + cnt + ' 张？</h3>'
+        + '<div class="cc-mv-hint">这批数量比较大，移到「' + esc2(cat) + '」之后，它们的原分类会全部被替换。卡片内容不受影响。</div>'
+        + '<div class="cc-mv-row" style="display:flex;gap:9px">'
+        + '<button class="cc-btn ghost" id="ccMoveNo" style="flex:1">再想想</button>'
+        + '<button class="cc-btn dark" id="ccMoveYes" style="flex:1">确定移动</button></div></div>';
+      document.body.appendChild(box);
+      box.addEventListener('click', function (e) {
+        if (e.target.closest('.cc-mv-mask') || e.target.id === 'ccMoveNo') { box.remove(); return }
+        if (e.target.id === 'ccMoveYes') {
+          box.remove(); window.__ccMoveOK = 1;
+          try { applyMove(cat) } finally { window.__ccMoveOK = 0 }
+        }
+      });
+      return;
+    }
+    var n = 0;
+    Object.keys(picked).forEach(function (k) {
+      var c = picked[k];
+      if (!c) return;
+      c.tag = (cat === '未分类') ? '' : cat;
+      n++;
+    });
+    picked = {}; selMode = false;
+    cur = (cat === '未分类') ? '未分类' : cat;
+    try { cardLibChanged() } catch (e) { }
+    save(); renderCards();
+    toast('已移动 ' + n + ' 张到「' + cat + '」');
   }
 
   /* ---------- 批量导入 ---------- */
@@ -15410,9 +15590,43 @@ function pgSetLastFromSheet(offset) {
   /* ---------- 事件 ---------- */
   document.addEventListener('click', function (e) {
     var t = e.target; if (!t || !t.closest) return;
+    /* 选择模式下：点卡片 = 勾选/取消（✕ 已隐藏，不会误删） */
+    if (selMode) {
+      var li = t.closest('.cc-li.pickable');
+      if (li) {
+        var k = li.getAttribute('data-k');
+        if (picked[k]) delete picked[k];
+        else { var list0 = itemsOf(cur); for (var q0 = 0; q0 < list0.length; q0++) { if (kOf(list0[q0]) === k) { picked[k] = list0[q0]; break } } }
+        /* 只改这一张的状态，不整页重绘 —— 否则每点一次都会跳回顶部 */
+        li.classList.toggle('picked', !!picked[k]);
+        var bx = li.querySelector('.cc-selbox'); if (bx) bx.classList.toggle('on', !!picked[k]);
+        var cntEl = document.querySelector('.cc-selbar span b');
+        if (cntEl) cntEl.textContent = Object.keys(picked).length;
+        e.preventDefault(); return;
+      }
+    }
     var a = t.closest('[data-act]'); if (!a) return;
     var act = a.getAttribute('data-act');
-    if (act === 'cc-tab') { cur = a.getAttribute('data-c'); renderCards(); return }
+    if (act === 'cc-tab') { cur = a.getAttribute('data-c'); if (selMode) { picked = {} } renderCards(); return }
+    if (act === 'cc-sel') {
+      e.preventDefault(); selMode = !selMode; picked = {}; renderCards(); try{ document.body.classList.toggle('cc-selecting', selMode) }catch(x){}
+      if (selMode) toast('点字卡选中，可以批量移到别的分类'); return;
+    }
+    if (act === 'cc-sel-all') {
+      e.preventDefault();
+      var shown = itemsOf(cur);
+      var all = shown.length && shown.every(function (x) { return picked[kOf(x)] });
+      picked = {};
+      if (!all) shown.forEach(function (x) { picked[kOf(x)] = x });
+      renderCards(); return;
+    }
+    if (act === 'cc-sel-cancel') { e.preventDefault(); selMode = false; picked = {}; renderCards(); try{ document.body.classList.remove('cc-selecting') }catch(x){} return }
+    if (act === 'cc-sel-move') {
+      e.preventDefault();
+      var n = Object.keys(picked).length;
+      if (!n) { toast('先选几张字卡'); return }
+      openMoveSheet(n); return;
+    }
     if (act === 'cc-add') { e.preventDefault(); addCards(); return }
     if (act === 'cc-del') { e.preventDefault(); delCard(a.getAttribute('data-c'), a.getAttribute('data-t')); return }
     if (act === 'cc-mood') {
@@ -17332,7 +17546,7 @@ window.mengxiEnsure=mx;
       '.home-grid>.app-item .app-icon svg{width:calc(26px*var(--hk))!important;height:calc(26px*var(--hk))!important}',
       '.home-grid>.app-item span{font-size:calc(13px*var(--hk))!important}',
       /* 页面高度写死，不竖向滚动 */
-      '.home-pages{overflow-y:hidden!important;height:100dvh!important;max-height:100dvh!important;align-items:flex-start!important}',
+      '.home-pages{overflow-y:hidden!important;align-items:flex-start!important}',
       '.home-page{height:100%!important;overflow:hidden!important;display:flex!important;flex-direction:column!important}',
       '.home-page .home-grid{flex:0 0 auto}',
       /* 去掉「＋ 添加组件」 */
@@ -20057,8 +20271,7 @@ window.mengxiEnsure=mx;
       /* 圆点浮起来，把高度还给内容 */
       '#view .cbg{position:relative!important}',
       '.page-dots{position:absolute!important;left:0;right:0;bottom:2px!important;margin:0!important;z-index:6}',
-      /* 首页占满容器 */
-      '#homePages{height:100%!important;overflow:hidden!important}',
+      /* 首页的横向翻页容器保持站点原样，这里不覆盖它的 overflow/touch-action */
       '.home-page{height:100%!important;overflow:hidden!important}',
       '.home-grid{align-content:start!important}',
       /* 首页时锁滚动（离开首页自动解除） */
@@ -20143,6 +20356,74 @@ window.mengxiEnsure=mx;
     if (window.visualViewport) window.visualViewport.addEventListener('resize', function () { setTimeout(fit, 150) });
   } catch (e) { }
   try { setTimeout(fit, 300); setTimeout(fit, 900); } catch (e) { }
+
+  /* ---------- 左右翻页：自己接管滑动 ----------
+     锁了 body 滚动后，部分机型（iOS）对 scroll-snap 容器的原生横滑不响应，
+     这里用 pointer 事件实现"跟手横滑 + 松手吸附到整页"，保证一定能翻。 */
+  (function bindSwipe() {
+    var hp = null, sx = 0, sy = 0, s0 = 0, dragging = false, locked = false, w = 0, moved = false;
+    function el0() { return document.getElementById('homePages'); }
+    function onDown(e) {
+      hp = el0(); if (!hp) return;
+      if (e.pointerType === 'mouse' && e.buttons !== 1) return;
+      w = hp.clientWidth || 1;
+      sx = e.clientX; sy = e.clientY; s0 = hp.scrollLeft;
+      dragging = true; locked = false; moved = false;
+    }
+    function onMove(e) {
+      if (!dragging || !hp) return;
+      var dx = e.clientX - sx, dy = e.clientY - sy;
+      if (!locked) {
+        if (Math.abs(dx) < 6 && Math.abs(dy) < 6) return;
+        if (Math.abs(dx) <= Math.abs(dy)) { dragging = false; return }   /* 竖向交给页面 */
+        locked = true;
+      }
+      moved = true;
+      try { e.preventDefault(); } catch (x) { }
+      hp.scrollLeft = s0 - dx;
+    }
+    function onUp(e) {
+      if (!dragging || !hp) { dragging = false; return }
+      dragging = false;
+      if (!locked) return;
+      var dx = e.clientX - sx;
+      var to = s0 - dx;
+      var page = Math.round(to / w);
+      var maxp = Math.max(0, Math.round((hp.scrollWidth - w) / w));
+      page = Math.max(0, Math.min(maxp, page));
+      if (Math.abs(dx) > 40 || Math.abs(page - Math.round(s0 / w)) > 0) {
+        try { hp.scrollTo({ left: page * w, behavior: 'smooth' }) } catch (x) { hp.scrollLeft = page * w }
+      } else {
+        try { hp.scrollTo({ left: Math.round(s0 / w) * w, behavior: 'smooth' }) } catch (x) { }
+      }
+      /* 不用手动派发 scroll：改 scrollLeft 浏览器会自己发，站点圆点逻辑照常触发 */
+    }
+    try {
+      document.addEventListener('pointerdown', onDown, { passive: true });
+      document.addEventListener('pointermove', onMove, { passive: false });
+      document.addEventListener('pointerup', onUp, { passive: true });
+      document.addEventListener('pointercancel', function () { dragging = false }, { passive: true });
+    } catch (e) { }
+
+    /* 触摸兜底：有些机型/场景 pointer 事件不会派发，这里再挂一套 touch */
+    function tp(e) { return (e.touches && e.touches[0]) || (e.changedTouches && e.changedTouches[0]) || null }
+    try {
+      document.addEventListener('touchstart', function (e) {
+        var p = tp(e); if (!p) return;
+        onDown({ pointerType: 'touch', clientX: p.clientX, clientY: p.clientY, buttons: 1, preventDefault: function () { } });
+      }, { passive: true });
+      document.addEventListener('touchmove', function (e) {
+        var p = tp(e); if (!p) return;
+        onMove({ clientX: p.clientX, clientY: p.clientY, preventDefault: function () { try { e.preventDefault() } catch (x) { } } });
+      }, { passive: false });
+      document.addEventListener('touchend', function (e) {
+        var p = tp(e); if (!p) return;
+        onUp({ clientX: p.clientX, clientY: p.clientY });
+      }, { passive: true });
+    } catch (e) { }
+  })();
+
+  window.__homeSwipe = 1;
   window.homeFitRun = fit;
 })();
 </script>
