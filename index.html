@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta name="x-build" content="41e73fac00">
+<meta name="x-build" content="963b4ab630">
 <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
 <meta charset="UTF-8">
 <meta name="theme-color" content="#7CB342">
@@ -20443,6 +20443,93 @@ window.mengxiEnsure=mx;
 
   window.__homeSwipe = 1;
   window.homeFitRun = fit;
+})();
+
+/* ================= 聊天页整页锁死（不让拖动露出壁纸） =================
+   现象：聊天室里往上拖，输入框下面会露出 body 的壁纸。
+   原因：站点只用 body.chat-mode 锁了内层 #view（height:100dvh），
+         <html>/<body> 自己没锁；iOS 上 100dvh 与真实可视区有差值，
+         多出来的那截就变成可拖动的页面滚动。
+   做法：
+     · 聊天页时给 <html> 加 .lock-all → html/body 都 overflow:hidden
+     · #view 高度改用 --vvh（visualViewport 实测高度），键盘弹起/收起不再留缝
+     · 只用 class 控制，不动任何 inline 样式；其它页面完全不受影响
+   只加这一层，不改聊天逻辑。 */
+(function () {
+  if (window.__chatLock) return; window.__chatLock = 1;
+
+  function css() {
+    if (document.getElementById('chatLockCss')) return;
+    var s = document.createElement('style'); s.id = 'chatLockCss';
+    s.textContent = [
+      /* 锁整页（首页 / 聊天页都会加这个 class） */
+      'html.lock-all,html.lock-all body{height:100%!important;overflow:hidden!important;overscroll-behavior:none!important}',
+      /* 聊天页自己再锁一次，高度用实测可视高度 */
+      'body.chat-mode{height:100%!important;overflow:hidden!important}',
+      'body.chat-mode #view{height:var(--vvh,100dvh)!important;max-height:var(--vvh,100dvh)!important;',
+      'overflow:hidden!important;overscroll-behavior:none!important}',
+      'body.chat-mode .chat-body{overscroll-behavior-y:contain}'
+    ].join('\n');
+    document.head.appendChild(s);
+  }
+
+  function readVVH() {
+    try {
+      var h = (window.visualViewport && window.visualViewport.height) || window.innerHeight || 0;
+      if (h) document.documentElement.style.setProperty('--vvh', Math.round(h) + 'px');
+    } catch (e) { }
+  }
+
+  function isChat() {
+    try { return document.body.classList.contains('chat-mode') } catch (e) { return false }
+  }
+
+  function isHome() {
+    try {
+      var v = (location.hash || '').replace('#', '');
+      if (v && v !== 'home') return false;
+      var hv = document.querySelector('.home-view') || document.getElementById('homePages');
+      return !!(hv && (hv.offsetWidth || hv.offsetHeight));
+    } catch (e) { return false }
+  }
+
+  function sync() {
+    try {
+      css();
+      readVVH();
+      document.documentElement.classList.toggle('lock-all', isChat() || isHome());
+    } catch (e) { }
+  }
+
+  /* 页面切换 / class 变化 / 键盘弹收 都重新同步 */
+  try {
+    var t = 0;
+    var mo = new MutationObserver(function () {
+      clearTimeout(t); t = setTimeout(sync, 40);
+    });
+    mo.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    mo.observe(document.body, { childList: true, subtree: false });
+  } catch (e) { }
+  try {
+    window.addEventListener('hashchange', function () { setTimeout(sync, 60) });
+    window.addEventListener('resize', function () { setTimeout(sync, 80) });
+    window.addEventListener('orientationchange', function () { setTimeout(sync, 300) });
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', function () { setTimeout(sync, 30) });
+      window.visualViewport.addEventListener('scroll', function () { setTimeout(sync, 30) });
+    }
+  } catch (e) { }
+  if (typeof goView === 'function' && !window.__chatLockGoView) {
+    window.__chatLockGoView = 1;
+    var _gv = goView;
+    goView = function () {
+      var r = _gv.apply(this, arguments);
+      setTimeout(sync, 40); setTimeout(sync, 300);
+      return r;
+    };
+  }
+  try { setTimeout(sync, 120); setTimeout(sync, 600); } catch (e) { }
+  window.chatLockSync = sync;
 })();
 </script>
 <div id="ntfBar" style="display:none" onclick="ntfGo()"></div>
