@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta name="x-build" content="793e27eebb">
+<meta name="x-build" content="0b85c63484">
 <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
 <meta charset="UTF-8">
 <meta name="theme-color" content="#7CB342">
@@ -1016,6 +1016,7 @@ input,textarea{background:rgba(255,255,255,.66)!important;border:1px solid var(-
 .tool-item .ti{width:50px;height:50px;border-radius:16px;display:flex;align-items:center;justify-content:center;background:var(--card);border:1px solid var(--line);color:var(--green)}
 .stk-panel{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;padding:6px 2px}
 .stk-item{font-size:calc(27px*var(--fs));height:52px;display:flex;align-items:center;justify-content:center;background:var(--card);border:1px solid var(--line);border-radius:12px;min-height:44px}
+.stk-item.stk-kao{font-size:calc(15px*var(--fs));height:auto;min-height:40px;padding:6px 10px;white-space:nowrap;line-height:1.3}
 .stk-img{height:56px;width:56px;object-fit:contain;border-radius:12px;border:1px solid var(--line);background:#fff}
 .bubble img.msg-img{max-width:210px;max-height:270px;border-radius:12px;display:block}
 .poll-card{align-self:flex-end;max-width:84%;background:var(--card);border:1px solid var(--line);border-radius:17px 5px 17px 17px;padding:10px 13px}
@@ -2713,6 +2714,67 @@ body.cc-selecting #ntfBar{display:none!important}
 #view .rm-boardrow button{border:none;border-radius:10px;background:#4A3A2E;color:#fff;font-size:13px;padding:0 14px;font-family:inherit;flex:0 0 auto}
 #view .rm-it.rm-arranging{outline:2px dashed rgba(74,58,46,.5);outline-offset:2px;cursor:grab}
 #view .rm-x{position:absolute;right:-8px;top:-8px;width:20px;height:20px;border-radius:50%;background:#C73A3A;color:#fff;font-size:12px;line-height:20px;text-align:center;z-index:5;cursor:pointer}
+
+
+/* 小屋点开大图 */
+.rm-closefull{position:absolute;right:12px;top:12px;z-index:60;width:34px;height:34px;border-radius:50%;border:none;background:rgba(0,0,0,.35);color:#fff;font-size:18px;display:none}
+body.rm-full .rm-closefull{display:block}
+body.rm-full .rm-tabs,body.rm-full .rm-timebar,body.rm-full .rm-board{display:none!important}
+body.rm-full .rm-wrap{padding:0!important}
+body.rm-full .rm-room{margin:0;border-radius:0;min-height:calc(100dvh - 52px)}
+
+
+/* ===== 小屋 · 卧室 ===== */
+.bd-times{display:flex;gap:6px;padding:10px 16px 2px;flex-wrap:wrap}
+.bd-times button{flex:1;min-width:52px;border:1px solid rgba(17,18,20,.1);border-radius:99px;background:#fff;color:#6B6D72;font-size:12px;padding:7px 0;font-family:inherit}
+.bd-times button.on{background:#141518;border-color:#141518;color:#fff;font-weight:600}
+.bd-room{position:relative;margin:10px 14px;border-radius:20px;overflow:hidden;height:min(380px,46vh);box-shadow:inset 0 0 0 1px #E8DFD6;background:#F3ECE2}
+.bd-room.night{filter:brightness(.6) saturate(.85)}
+.bd-room.rain{filter:saturate(.72) brightness(.94)}
+.bd-wall{position:absolute;left:0;right:0;top:0;height:70%;background:linear-gradient(180deg,#F7F0E6,#EFE6D8)}
+.bd-room.night .bd-wall{background:linear-gradient(180deg,#2E2A3A,#3A3346)}
+.bd-room.rain .bd-wall{background:linear-gradient(180deg,#DCD9DD,#CFCBD2)}
+.bd-floor{position:absolute;left:0;right:0;bottom:0;height:30%;background:repeating-linear-gradient(90deg,#BFA98C 0 40px,#B7A184 40px 80px)}
+.bd-room.night .bd-floor{background:repeating-linear-gradient(90deg,#4A3D33 0 40px,#44382F 40px 80px)}
+.bd-window{position:absolute;left:30px;top:30px;width:72px;height:54px;border-radius:8px;border:4px solid #D9CBB8;background:linear-gradient(180deg,#C9E4F5,#EAF6FC)}
+.bd-window::before{content:"";position:absolute;left:50%;top:0;bottom:0;width:3px;background:#D9CBB8;transform:translateX(-50%)}
+.bd-window::after{content:"";position:absolute;left:0;right:0;top:50%;height:3px;background:#D9CBB8}
+.bd-room.night .bd-window{background:linear-gradient(180deg,#1E2540,#3A3350)}
+.bd-room.rain .bd-window{background:linear-gradient(180deg,#9FA7B5,#C4C9D2)}
+.bd-curtain{position:absolute;top:26px;height:62px;width:13px;background:linear-gradient(180deg,#EAD9C4,#D9C4A9)}
+.bd-curtain.l{left:22px}.bd-curtain.r{left:102px}
+.bd-lampglow{position:absolute;left:14px;top:44%;width:70px;height:70px;border-radius:50%;background:radial-gradient(circle,#FFE9B0,transparent 70%);opacity:0;pointer-events:none}
+.bd-room.night .bd-lampglow{opacity:.85}
+.bd-rain{position:absolute;inset:0;opacity:0;pointer-events:none;background:repeating-linear-gradient(115deg,rgba(120,140,170,.13) 0 1px,transparent 1px 14px);animation:bdrain .5s linear infinite}
+.bd-room.rain .bd-rain{opacity:1}
+@keyframes bdrain{to{background-position:40px 60px}}
+.bd-furn{position:absolute;display:flex;align-items:center;justify-content:center;font-size:38px;transform:translate(-50%,-50%);filter:drop-shadow(0 5px 7px rgba(0,0,0,.14));user-select:none}
+.bd-furn.bd-arranging{outline:2px dashed rgba(74,58,46,.5);outline-offset:3px;border-radius:8px;cursor:grab}
+.bd-x{position:absolute;right:-8px;top:-8px;width:20px;height:20px;border-radius:50%;background:#C73A3A;color:#fff;font-size:12px;line-height:20px;text-align:center;z-index:5;cursor:pointer}
+.bd-him{position:absolute;z-index:6;width:40px;display:flex;flex-direction:column;align-items:center;cursor:pointer;transition:left .8s,top .8s;transform:translate(-50%,-100%)}
+.bd-him .bd-head{width:34px;height:34px;border-radius:50%;overflow:hidden;border:2px solid rgba(201,164,106,.85);box-shadow:0 0 0 3px rgba(201,164,106,.16),0 4px 10px rgba(0,0,0,.2);display:flex;align-items:center;justify-content:center;background:#fff}
+.bd-him .bd-head img,.bd-him .bd-head svg{width:100%;height:100%;object-fit:cover}
+.bd-him .bd-face{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#fff;background:linear-gradient(160deg,#8E3B4C,#5E2230)}
+.bd-him .bd-body{width:18px;height:20px;border-radius:6px 6px 0 0;background:#2B2B33;margin-top:-3px}
+.bd-him.gone{opacity:.4}
+.bd-bubble{position:absolute;left:12px;right:12px;bottom:12px;z-index:7;background:#fff;border-radius:13px;padding:10px 13px;box-shadow:0 8px 20px rgba(0,0,0,.16);font-size:13px;line-height:1.5;color:#3A3B3E;display:none}
+.bd-bubble.on{display:block}
+.bd-closefull{position:absolute;right:12px;top:12px;z-index:60;width:34px;height:34px;border-radius:50%;border:none;background:rgba(0,0,0,.35);color:#fff;font-size:18px;display:none}
+body.bd-full .bd-closefull{display:block}
+body.bd-full .bd-times,body.bd-full .bd-board{display:none!important}
+body.bd-full .bd-room{margin:0;border-radius:0;height:calc(100dvh - 52px)}
+.bd-arrange{margin-left:auto;font-size:12px;border:1px solid rgba(17,18,20,.12);background:#fff;border-radius:99px;padding:6px 12px;font-family:inherit;color:#6B6D72}
+.bd-board{margin:12px 16px;border-radius:16px;background:#8A6A4A;padding:12px;box-shadow:inset 0 0 0 3px #6E5139}
+.bd-board h4{color:#F5E9D6;font-size:12px;letter-spacing:.08em;margin:2px 2px 8px}
+.bd-pins{display:flex;flex-direction:column;gap:8px;min-height:30px}
+.bd-pin{position:relative;background:#FBF3DF;border-radius:4px;padding:10px 12px;font-size:13px;color:#4A3A2E;line-height:1.5;box-shadow:0 3px 8px rgba(0,0,0,.18)}
+.bd-pin::before{content:"";position:absolute;left:50%;top:-6px;width:12px;height:12px;margin-left:-6px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#E86A6A,#A93A3A)}
+.bd-pin .bd-who{display:block;font-size:10px;color:#B08A75;margin-top:4px;text-align:right}
+.bd-boardrow{display:flex;gap:8px;margin-top:10px}
+.bd-boardrow input{flex:1;border:1px solid #D9CBB8;border-radius:10px;padding:9px 11px;font-size:14px;font-family:inherit;background:#FBF7EE;outline:none;min-width:0}
+.bd-boardrow button{border:none;border-radius:10px;background:#4A3A2E;color:#fff;font-size:13px;padding:0 14px;font-family:inherit;flex:0 0 auto}
+/* 雷达头像填充 */
+.rd-avatar img,.rd-avatar svg{width:100%;height:100%;object-fit:cover}
 </style>
 </head>
 <body>
@@ -3576,6 +3638,7 @@ function migrate(s){
   if(!s.nextPostDue||typeof s.nextPostDue!=='object')s.nextPostDue={};
   if(!Array.isArray(s.profileBox))s.profileBox=[];
   if(!Array.isArray(s.stickers))s.stickers=[];
+  if(!Array.isArray(s.kaomoji))s.kaomoji=[];
   if(!Array.isArray(s.feedEvents))s.feedEvents=[];
   if(!Array.isArray(s.savedMsgs))s.savedMsgs=[];
   if(!Array.isArray(s.checkinPresets))s.checkinPresets=[];
@@ -3828,7 +3891,6 @@ function migrate(s){
   if(s.settings.surveyPct===undefined)s.settings.surveyPct=8;   /* 他主动发问卷概率 */
   /* ★ 网站名称：用户可以自己输入（默认"沉与昕之恋"） */
   if(s.settings.siteName==null)s.settings.siteName='与沉';
-  if(s.settings.hisTransferAmt===undefined)s.settings.hisTransferAmt=0;
   if(s.settings.profileHandle===undefined)s.settings.profileHandle='@lu.chen';
   if(!s.profileBox)s.profileBox=[];
   if(s.profileFollowed===undefined)s.profileFollowed=true;
@@ -5859,6 +5921,19 @@ function addReadButtons() {
 var _renderRead = renderRead;
 renderRead = function () { _renderRead(); try { addReadButtons() } catch (e) { } };
 function renderHome(){
+  /* ★ 雷达固定放第二页：在首页真正渲染前，确保它有第二页的格子（只做一次） */
+  try{
+    if(!state.settings)state.settings={};
+    if(!state.settings._radarPlaced){
+      state.settings._radarPlaced=1;
+      var _ap=(state.appPos && typeof state.appPos==='object' && !Array.isArray(state.appPos))?state.appPos:null;
+      if(_ap && !_ap['radar']){
+        var _used={};
+        for(var _k in _ap){ var _q=_ap[_k]; if(_q && _q.p===1) _used[_q.r*4+_q.c]=1 }
+        for(var _c=0;_c<20;_c++){ if(!_used[_c]){ _ap['radar']={p:1,r:Math.floor(_c/4),c:_c%4}; break } }
+      }
+    }
+  }catch(e){}
   var _inSnap=inputSnapshot();
   var c=activeContact();
   var d=new Date(),hour=d.getHours();
@@ -9832,6 +9907,14 @@ function replyChat(m){
   var emojiMode=Math.random()*100<((state.settings&&state.settings.emojiPct)!=null?state.settings.emojiPct:15);
   var texts=[],prevTxt=null;
   for(var j=0;j<count;j++){var tt=composeText(c,prevTxt);texts.push(tt);prevTxt=tt}
+  /* 颜文字：偶尔句尾带，偶尔单独只发一个 */
+  try{
+    var _kao=state.kaomoji||[];
+    if(_kao.length){
+      if(Math.random()<0.30){ texts[texts.length-1] += pick(_kao); }
+      else if(Math.random()<0.10){ texts=[pick(_kao)]; }
+    }
+  }catch(e){}
   replyPlan(c,texts,quote,emojiMode);
 }
 function maybeEmojiReply(c){
@@ -10479,6 +10562,14 @@ function sheetStickers(){
   html+='</div>';
   html+='<div class="stk-sec-title">添加 Emoji</div>';
   html+='<div class="stk-add-emoji"><input id="stkEmojiIn" maxlength="6" placeholder="粘贴或输入一个 emoji"><button class="btn small" data-act="emoji-add">添加</button><button class="btn small ghost" data-act="emoji-reset" style="margin-left:6px">恢复默认</button></div>';
+  html+='<div class="stk-sec-title">颜文字</div>';
+  html+='<div class="stk-panel">';
+  var _kao=state.kaomoji||[];
+  for(var _ki=0;_ki<_kao.length;_ki++)html+='<button class="stk-item stk-kao" data-act="kaomoji-send" data-e="'+esc(_kao[_ki])+'">'+esc(_kao[_ki])+'</button>';
+  if(!_kao.length)html+='<p class="meta" style="padding:6px 0">还没有颜文字，点下面「添加颜文字」手动输入</p>';
+  html+='</div>';
+  html+='<div class="stk-sec-title">添加颜文字</div>';
+  html+='<div class="stk-add-emoji"><input id="stkKaoIn" maxlength="24" placeholder="粘贴或输入一个颜文字"><button class="btn small" data-act="kaomoji-add">添加</button></div>';
   html+='<div class="actions"><button class="cancel" data-act="sheet-close">完成</button><button class="ok" data-act="sticker-add">添加表情图片</button></div>';
   html+='<input type="file" id="stickerFile" accept="image/*" multiple style="display:none">';
   openSheet(html);
@@ -10502,6 +10593,12 @@ function bindStickerPress(){
     if(em){
       var v=em.getAttribute('data-e');
       _stkPress=CLK.set(function(){_stkPress=0;_stkSuppress=true;CLK.set(function(){_stkSuppress=false},400);emojiDel(v)},900);
+      return;
+    }
+    var kao=t.closest('[data-act="kaomoji-send"]');
+    if(kao){
+      var kv=kao.getAttribute('data-e');
+      _stkPress=CLK.set(function(){_stkPress=0;_stkSuppress=true;CLK.set(function(){_stkSuppress=false},400);kaomojiDel(kv)},900);
       return;
     }
     var b=t.closest('[data-act="sticker-send"]');
@@ -10557,6 +10654,35 @@ function sendEmoji(e){
   var c=activeContact();
   state.messages.push({id:uid(),contactId:c.id,dir:'out',text:e,ts:now(),readDue:now()+4000,replyDue:now()+rndDelay(c)});
   save();closeSheet();renderChat();schedule();
+}
+/* 颜文字：添加 */
+function kaomojiAdd(){
+  var el=document.querySelector('#stkKaoIn');
+  var v=el?String(el.value||'').trim():'';
+  if(!v){toast('先输入一个颜文字');return}
+  state.kaomoji=state.kaomoji||[];
+  if(state.kaomoji.indexOf(v)<0)state.kaomoji.push(v);
+  save();sheetStickers();toast('已添加颜文字');
+}
+/* 颜文字：点一下插入输入框（不直接发） */
+function kaomojiSend(e){
+  closeSheet();
+  var ta=document.getElementById('chatText');
+  if(!ta){toast('先在聊天室再发颜文字');return}
+  var pos=(ta.selectionStart!=null)?ta.selectionStart:ta.value.length;
+  ta.value=ta.value.slice(0,pos)+e+ta.value.slice(pos);
+  ta.focus();
+  var np=pos+e.length; try{ta.setSelectionRange(np,np)}catch(x){}
+  try{ta.dispatchEvent(new Event('input',{bubbles:true}))}catch(x){}
+}
+/* 颜文字：长按删除 */
+function kaomojiDel(v){
+  if(!v)return;
+  if(!confirm('删除这个颜文字？'))return;
+  var k=state.kaomoji||[]; var at=k.indexOf(v);
+  if(at>=0)k.splice(at,1);
+  state.kaomoji=k;
+  save();sheetStickers();
 }
 function sendSticker(id){
   var st=byId(state.stickers,id);if(!st)return;
@@ -10680,10 +10806,18 @@ function rollLoginEvents(){
 
 /* ================= 转账 ================= */
 var TRANSFER_AMOUNTS=[520,1314,5200,888,999,9999,666];
+/* 陆沉主动转账金额：固定 7 个数，偶尔他"自己定"一个自定义金额（小到几十，大到 2000 万） */
+function hisTransferAmt(){
+  if(Math.random()<0.72) return pick(TRANSFER_AMOUNTS);
+  var r=Math.random();
+  if(r<0.45) return Math.floor(Math.random()*900)+100;          /* 100~999，如 777 */
+  if(r<0.72) return Math.floor(Math.random()*9000)+1000;        /* 1000~9999 */
+  if(r<0.9)  return Math.floor(Math.random()*490000)+10000;     /* 1万~50万 */
+  return Math.floor(Math.random()*19500001)+500000;             /* 50万~2000万 */
+}
 function showTransfer(){
   var c=activeContact();if(!c)return;
-  var s8=(typeof state!=='undefined'&&state.settings)||{};
-  var amt=(s8.hisTransferAmt>0)?s8.hisTransferAmt:pick(TRANSFER_AMOUNTS);
+  var amt=hisTransferAmt();
   state.wallet=state.wallet||{balance:888,log:[]};
   state.messages.push({id:uid(),contactId:c.id,dir:'in',kind:'transfer',amount:amt,ts:now()});
   save();renderChat();toast(esc(c.name)+' 给你转账 ¥'+amt.toFixed(2)+'，在卡片上收下吧');
@@ -11361,6 +11495,7 @@ document.addEventListener('click',function(e){
     else if(act==='checkin-custom'){var ckIn=$('#checkinCustom');if(ckIn&&ckIn.value.trim())sendCheckin(ckIn.value.trim());else toast('写一句查岗的话')}
     else if(act==='image-send'){ensureImgInput().click()}
     else if(act==='emoji-add')emojiAdd()
+    else if(act==='kaomoji-add')kaomojiAdd()
     else if(act==='emoji-reset')emojiReset()
     else if(act==='card-reset'){closeSheet();resetCardPos()}
     else if(act==='invite-save')inviteSave()
@@ -11405,6 +11540,7 @@ document.addEventListener('click',function(e){
     else if(act==='tools')sheetTools();
     else if(act==='emoji')sheetStickers();
     else if(act==='emoji-send')sendEmoji(btn.getAttribute('data-e'));
+    else if(act==='kaomoji-send')kaomojiSend(btn.getAttribute('data-e'));
     else if(act==='sticker-send')sendSticker(btn.getAttribute('data-id'));
     else if(act==='sticker-add'){var sf=$('#stickerFile');if(sf)sf.click()}
     else if(act==='wd-sw'){var wkv=btn.getAttribute('data-key');state.widgets[wkv]=!state.widgets[wkv];save();renderMe()}
@@ -11494,7 +11630,7 @@ document.addEventListener('click',function(e){
     else if(act==='transfer-out')sheetTransferOut();
     else if(act==='transfer-quick')sendTransfer(btn.getAttribute('data-amt'));
     else if(act==='transfer-send'){var tfv=$('#tfAmt');sendTransfer(tfv?tfv.value:0)}
-  else if(act==='his-transfer-save'){var hv=$('#hisAmt'); state.settings.hisTransferAmt=Math.max(0,parseFloat(hv?hv.value:0)||0); save(); toast('已保存：他给我转账 '+(state.settings.hisTransferAmt>0?'¥'+state.settings.hisTransferAmt:'随机金额')); }
+
     else if(act==='transfer-decide')transferDecide(id,btn.getAttribute('data-ok')==='1');
     else if(act==='post-like')toggleLike(btn.getAttribute('data-id'));
     else if(act==='backup-export')backupExport()
@@ -11974,11 +12110,7 @@ function sheetTransferOut(){
   if(!c)return;
   var rows='';
   for(var i=0;i<TRANSFER_AMOUNTS.length;i++)rows+='<button class="amt-chip" data-act="transfer-quick" data-amt="'+TRANSFER_AMOUNTS[i]+'">¥'+TRANSFER_AMOUNTS[i].toFixed(2)+'</button>';
-  var hisAmt=(state.settings&&state.settings.hisTransferAmt)||0;
-  openSheet('<h2>给 '+esc(c.name)+' 转账</h2><div class="amt-chips">'+rows+'</div><label>或输入金额</label><div style="display:flex;gap:8px"><input id="tfAmt" type="number" step="0.01" min="0.01" placeholder="0.00"><button class="btn" data-act="transfer-send">转账</button></div>'
-    +'<div style="margin-top:14px"><label>陆沉主动给我转账的金额（0 = 随机）</label>'
-    +'<div style="display:flex;gap:8px"><input id="hisAmt" type="number" step="0.01" min="0" placeholder="0" value="'+hisAmt+'"><button class="btn ghost" data-act="his-transfer-save">保存</button></div></div>'
-    +'<div class="actions"><button class="cancel" data-act="sheet-close">取消</button></div>');
+  openSheet('<h2>给 '+esc(c.name)+' 转账</h2><div class="amt-chips">'+rows+'</div><label>或输入金额</label><div style="display:flex;gap:8px"><input id="tfAmt" type="number" step="0.01" min="0.01" placeholder="0.00"><button class="btn" data-act="transfer-send">转账</button></div><div class="actions"><button class="cancel" data-act="sheet-close">取消</button></div>');
 }
 function sendTransfer(amt){
   var c=activeContact();if(!c)return;
@@ -20731,6 +20863,14 @@ function openApp(k) {
 
     var view = document.getElementById('view');
     if (view) view.innerHTML = h;
+    /* 头像用设置里能换的陆沉头像（和聊天/联系人联动） */
+    try {
+      var _av = document.getElementById('rdAvatar');
+      if (_av && typeof avatarHtml === 'function' && typeof activeContact === 'function') {
+        _av.innerHTML = avatarHtml(activeContact(), 34);
+        _av.classList.add('rd-hasimg');
+      }
+    } catch (e) { }
     paint(r);
   }
 
@@ -20832,9 +20972,9 @@ function openApp(k) {
   window.xinshengGenerate = function () {
     if (window.__xsBusy) return;
     var p = P(); var cfg = p.api || {};
-    if (!cfg.key) { if (typeof toast2 === 'function') toast2('先去「设置」配好 AI'); return }
+    if (!cfg.key) { if (typeof toast === 'function') toast('先去「设置」配好 AI'); return }
     var ctx = (typeof phoneAIContext === 'function') ? phoneAIContext({ chatN: 30 }) : null;
-    if (!ctx || !(ctx.chat || []).length) { if (typeof toast2 === 'function') toast2('还没有你们的聊天记录'); return }
+    if (!ctx || !(ctx.chat || []).length) { if (typeof toast === 'function') toast('还没有你们的聊天记录'); return }
 
     window.__xsBusy = true;
     var btn = document.querySelector('[data-act="xs-gen"]'); if (btn) btn.textContent = '生成中…';
@@ -20861,7 +21001,7 @@ function openApp(k) {
         if (board) board.innerHTML = (p.xsNotes || []).slice(-6).map(noteHtml).join('');
       }
     }).catch(function (e) {
-      if (typeof toast2 === 'function') toast2('AI 没成功：' + (e && e.message ? e.message : '网络') + '（先去设置里试连接）');
+      if (typeof toast === 'function') toast('AI 没成功：' + (e && e.message ? e.message : '网络') + '（先去设置里试连接）');
     }).finally(function () {
       window.__xsBusy = false;
       var b = document.querySelector('[data-act="xs-gen"]'); if (b) b.textContent = '让 AI 听听他的心声';
@@ -20872,23 +21012,30 @@ function openApp(k) {
 
   document.addEventListener('click', function (e) {
     var t = e.target; if (!t || !t.closest) return;
-    if (t.closest('[data-act="xs-gen"]')) { window.xinshengGenerate(); return }
-  });
+    if (t.closest('[data-act="xs-gen"]')) { e.preventDefault(); e.stopPropagation(); window.xinshengGenerate(); return }
+  }, true);
 })();
 
-/* ================= 小屋互动层 =================
-   在原有小屋（40-room.js）之上加互动：
-   · 陆沉出现在房间、按时间走动、点他说话
-   · 昼夜 / 雨天 / 周末切换（改变房间色调 + 他的位置）
-   · 留言板：你留言，他回来时从字卡库抽一条回复，只显示最新 3 条
-   · 布置模式：拖家具 / 轻点旋转 / 点 × 回收
-   · 买家具他会点评（沿用 rm-buy，补一句点评）
-   余额仍用钱包（roomMoney 已是 wallet.balance）。 */
+/* ================= 小屋 · 卧室（替换旧的多房间+商城版）=================
+   整间房换成模拟站那套卧室：墙/地板/窗/窗帘/床/衣柜/书桌/书架/地毯/绿植/门。
+   · 陆沉出现，头像和设置里能换的陆沉头像联动
+   · 按时间（白天/傍晚/深夜/雨天/周末）换位置，白天不在家，每 3 分钟挪一次
+   · 点他说话；留言板回复从字卡库抽，只显示最新 3 条
+   · 布置模式：拖 / 轻点转 45° / 点 × 回收
+   · 点房间空白开大图
+   余额相关（商城/钱包）不再出现在这一页。 */
 (function () {
-  if (window.__roomLive) return; window.__roomLive = 1;
+  if (window.__bedroom) return; window.__bedroom = 1;
 
   var TIMES = [['day', '白天'], ['evening', '傍晚'], ['night', '深夜'], ['rain', '雨天'], ['weekend', '周末']];
-  var SPOTS = [['床上', '46%', '58%'], ['椅子上', '60%', '70%'], ['窗边', '22%', '38%'], ['门口', '82%', '22%'], ['地毯上', '44%', '76%'], ['书架旁', '80%', '30%']];
+  var SPOTS = [
+    { n: '床上', l: '46%', t: '58%' },
+    { n: '椅子上', l: '60%', t: '70%' },
+    { n: '窗边', l: '22%', t: '38%' },
+    { n: '门口', l: '82%', t: '22%' },
+    { n: '地毯上', l: '44%', t: '76%' },
+    { n: '书架旁', l: '80%', t: '30%' }
+  ];
   var GONE = { day: true, evening: false, night: false, rain: false, weekend: false };
   var LINES = {
     day: ['他去公司了，房间空着。'],
@@ -20897,158 +21044,146 @@ function openApp(k) {
     rain: ['下雨了，站窗边等雨停。', '伞在门口，出门记得带。', '雨声很好听，你听。'],
     weekend: ['周末，我都在家。', '今天想做什么？', '陪你看个电影，还是就待着？', '我去给你冲杯咖啡。']
   };
-  var BUY_REPLY = ['这颜色不错。', '又乱花钱。', '放这挺好的。', '我很喜欢。', '你挑的，都好。'];
 
   function pick(a) { return a[Math.floor(Math.random() * a.length)] }
   function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;') }
-  function now() { return Date.now() }
-  function R() {
-    state.roomLive = state.roomLive || { t: 'evening', spot: 0, notes: [], arrange: false };
-    return state.roomLive;
+  function R() { state.roomLive = state.roomLive || { t: 'evening', spot: 0, notes: [], arrange: false }; return state.roomLive }
+  function himHead() {
+    try { if (typeof avatarHtml === 'function' && typeof activeContact === 'function') return avatarHtml(activeContact(), 34) } catch (e) { }
+    return '<span class="bd-face">陆</span>';
   }
   function cardReply() {
     try {
       var cs = (state.cards || []).filter(function (c) { return c && String(c.text || '').trim() });
       if (!cs.length) return '看到了。';
-      var c = pick(cs); return String(c.text).slice(0, 40);
+      return String(pick(cs).text).slice(0, 40);
     } catch (e) { return '看到了。' }
   }
 
-  function inject() {
+  function renderBedroom() {
     var rl = R();
-    var room = document.querySelector('#view .rm-room');
-    if (!room) return;
+    var back = (typeof ICON_BACK !== 'undefined') ? ICON_BACK : '‹';
+    var h = '<div class="page-top"><button class="back" data-view="home">' + back + '</button><span class="pt">小屋</span>'
+      + '<button class="bd-arrange" id="bdArrange" data-act="bd-arrange">布置</button></div>';
 
-    /* 时间切换条 */
-    var tbar = document.getElementById('rmTimeBar');
-    if (!tbar) {
-      tbar = document.createElement('div'); tbar.id = 'rmTimeBar'; tbar.className = 'rm-timebar';
-      tbar.innerHTML = TIMES.map(function (x) { return '<button data-rt="' + x[0] + '">' + x[1] + '</button>' }).join('');
-      var tabs = document.querySelector('#view .rm-tabs');
-      if (tabs && tabs.parentNode) tabs.parentNode.insertBefore(tbar, tabs.nextSibling);
-      tbar.addEventListener('click', function (e) {
-        var b = e.target.closest('[data-rt]'); if (!b) return;
-        setTime(b.getAttribute('data-rt'));
-      });
-    }
+    h += '<div class="bd-times" id="bdTimes">'
+      + TIMES.map(function (x) { return '<button data-bt="' + x[0] + '">' + x[1] + '</button>' }).join('') + '</div>';
 
-    /* 布置按钮 */
-    if (!document.getElementById('rmArrange')) {
-      var ab = document.createElement('button'); ab.id = 'rmArrange'; ab.className = 'rm-shop';
-      ab.textContent = '布置'; ab.setAttribute('data-act', 'rm-arrange');
-      var top = document.querySelector('#view .page-top');
-      if (top) top.appendChild(ab);
-    }
+    h += '<div class="bd-room" id="bdRoom">'
+      + '<div class="bd-wall"></div><div class="bd-floor"></div>'
+      + '<div class="bd-window"></div><div class="bd-curtain l"></div><div class="bd-curtain r"></div>'
+      + '<div class="bd-lampglow"></div><div class="bd-rain"></div>'
+      + '<div class="bd-furn" data-f="bed" style="left:46%;top:52%">🛏️</div>'
+      + '<div class="bd-furn" data-f="wardrobe" style="left:82%;top:56%">🗄️</div>'
+      + '<div class="bd-furn" data-f="desk" style="left:60%;top:70%">🪑</div>'
+      + '<div class="bd-furn" data-f="shelf" style="left:82%;top:30%">📚</div>'
+      + '<div class="bd-furn" data-f="rug" style="left:44%;top:78%">🟫</div>'
+      + '<div class="bd-furn" data-f="plant" style="left:14%;top:74%">🪴</div>'
+      + '<div class="bd-furn" data-f="door" style="left:90%;top:14%">🚪</div>'
+      + '<div class="bd-furn" data-f="lamp" style="left:20%;top:46%">💡</div>'
+      + '<div class="bd-him" id="bdHim"><span class="bd-head">' + himHead() + '</span><span class="bd-body"></span></div>'
+      + '<div class="bd-bubble" id="bdBubble"></div>'
+      + '<button class="bd-closefull" id="bdClose">×</button>'
+      + '</div>';
 
-    /* 陆沉 */
-    if (!document.getElementById('rmHim')) {
-      var him = document.createElement('div'); him.id = 'rmHim'; him.className = 'rm-him';
-      him.innerHTML = '<span class="rm-him-head">陆</span><span class="rm-him-body"></span>';
-      room.appendChild(him);
-      him.addEventListener('click', function (e) { e.stopPropagation(); speak() });
-    }
+    h += '<div class="bd-board"><h4>留言板 · 贴给他的</h4><div class="bd-pins" id="bdPins"></div>'
+      + '<div class="bd-boardrow"><input id="bdNote" placeholder="给陆沉留句话…"><button id="bdNoteAdd">贴上</button></div></div>';
 
-    /* 气泡 */
-    if (!document.getElementById('rmBubble')) {
-      var bb = document.createElement('div'); bb.id = 'rmBubble'; bb.className = 'rm-bubble';
-      room.appendChild(bb);
-    }
-
-    /* 留言板 */
-    if (!document.getElementById('rmBoard')) {
-      var bd = document.createElement('div'); bd.id = 'rmBoard'; bd.className = 'rm-board';
-      bd.innerHTML = '<h4>留言板 · 贴给他的</h4><div class="rm-pins"></div>'
-        + '<div class="rm-boardrow"><input id="rmNote" placeholder="给陆沉留句话…"><button id="rmNoteAdd">贴上</button></div>';
-      var wrap = document.querySelector('#view .rm-wrap');
-      if (wrap) wrap.appendChild(bd);
-      document.getElementById('rmNoteAdd').addEventListener('click', addNote);
-    }
-
-    paint(rl);
+    var view = document.getElementById('view');
+    if (view) view.innerHTML = h;
+    bind();
+    paint();
   }
 
-  function setTime(t) {
-    var rl = R(); rl.t = t; rl.spot = Math.floor(Math.random() * SPOTS.length);
-    try { save() } catch (e) { }
-    paint(rl);
-    var bb = document.getElementById('rmTimeBar');
-    if (bb) Array.prototype.forEach.call(bb.children, function (x) { x.classList.toggle('on', x.getAttribute('data-rt') === t) });
-  }
-
-  function paint(rl) {
-    var room = document.querySelector('#view .rm-room'); if (!room) return;
-    room.classList.remove('night', 'rain');
-    if (rl.t === 'night') room.classList.add('night');
-    if (rl.t === 'rain') room.classList.add('rain');
-    var him = document.getElementById('rmHim');
+  function paint() {
+    var rl = R();
+    var room = document.getElementById('bdRoom'); if (!room) return;
+    room.classList.toggle('night', rl.t === 'night');
+    room.classList.toggle('rain', rl.t === 'rain');
+    var him = document.getElementById('bdHim');
     if (him) {
       if (GONE[rl.t]) { him.classList.add('gone'); him.style.left = '6%'; him.style.top = '62%' }
       else {
         him.classList.remove('gone');
         var s = SPOTS[rl.spot % SPOTS.length];
-        him.style.left = s[1]; him.style.top = s[2];
+        him.style.left = s.l; him.style.top = s.t;
       }
     }
+    var tb = document.getElementById('bdTimes');
+    if (tb) Array.prototype.forEach.call(tb.children, function (x) { x.classList.toggle('on', x.getAttribute('data-bt') === rl.t) });
     renderPins();
   }
 
-  function speak() {
-    var rl = R(); var bb = document.getElementById('rmBubble'); if (!bb) return;
-    bb.textContent = GONE[rl.t] ? '他不在家，白天他在公司。' : pick(LINES[rl.t]);
-    bb.classList.add('on'); clearTimeout(bb._t); bb._t = setTimeout(function () { bb.classList.remove('on') }, 3000);
+  function speak(t) {
+    var bb = document.getElementById('bdBubble'); if (!bb) return;
+    bb.textContent = t; bb.classList.add('on'); clearTimeout(bb._t); bb._t = setTimeout(function () { bb.classList.remove('on') }, 3000);
+  }
+
+  function setTime(t) {
+    var rl = R(); rl.t = t; rl.spot = Math.floor(Math.random() * SPOTS.length);
+    try { save() } catch (e) { }
+    paint();
   }
 
   function renderPins() {
-    var host = document.querySelector('#view .rm-pins'); if (!host) return;
+    var host = document.getElementById('bdPins'); if (!host) return;
     var rl = R(); var notes = rl.notes.slice(-3);
-    host.innerHTML = notes.map(function (n) { return '<div class="rm-pin">' + esc(n.text) + '<span class="rm-pin-who">— ' + esc(n.who) + '</span></div>' }).join('');
+    host.innerHTML = notes.map(function (n) { return '<div class="bd-pin">' + esc(n.text) + '<span class="bd-who">— ' + esc(n.who) + '</span></div>' }).join('');
   }
 
   function addNote() {
-    var inp = document.getElementById('rmNote'); if (!inp) return;
+    var inp = document.getElementById('bdNote'); if (!inp) return;
     var v = inp.value.trim(); if (!v) return;
-    var rl = R(); rl.notes.push({ who: '我', text: v, ts: now() });
-    inp.value = '';
-    renderPins();
-    var bb = document.getElementById('rmBubble'); if (bb) { bb.textContent = '贴好了。等他回来，会看到。'; bb.classList.add('on') }
-    /* 他回来（切到非白天）时从字卡抽一条回复 */
-    var _t = setInterval(function () {
-      if (!GONE[R().t]) { rl.notes.push({ who: '陆沉', text: cardReply(), ts: now() }); renderPins(); clearInterval(_t) }
+    var rl = R(); rl.notes.push({ who: '我', text: v, ts: Date.now() });
+    inp.value = ''; renderPins(); speak('贴好了。等他回来，会看到。');
+    var _i = setInterval(function () {
+      if (!GONE[R().t]) { rl.notes.push({ who: '陆沉', text: cardReply(), ts: Date.now() }); renderPins(); clearInterval(_i) }
     }, 2600);
   }
 
-  function arrange(on) {
-    var rl = R(); rl.arrange = on;
-    var items = document.querySelectorAll('#view .rm-it');
+  function toggleArrange() {
+    var rl = R(); rl.arrange = !rl.arrange;
+    var items = document.querySelectorAll('#bdRoom .bd-furn');
     for (var i = 0; i < items.length; i++) {
-      items[i].classList.toggle('rm-arranging', on);
-      if (on && !items[i].querySelector('.rm-x')) {
-        var x = document.createElement('span'); x.className = 'rm-x'; x.textContent = '×'; items[i].appendChild(x);
-      } else if (!on) { var x2 = items[i].querySelector('.rm-x'); if (x2) x2.remove() }
+      items[i].classList.toggle('bd-arranging', rl.arrange);
+      if (rl.arrange && !items[i].querySelector('.bd-x')) {
+        var x = document.createElement('span'); x.className = 'bd-x'; x.textContent = '×'; items[i].appendChild(x);
+      } else if (!rl.arrange) { var x2 = items[i].querySelector('.bd-x'); if (x2) x2.remove() }
     }
-    var ab = document.getElementById('rmArrange'); if (ab) ab.textContent = on ? '完成' : '布置';
+    var ab = document.getElementById('bdArrange'); if (ab) ab.textContent = rl.arrange ? '完成' : '布置';
+    if (rl.arrange) speak('布置模式：拖动换位置，轻点转方向，点 × 回收。');
   }
 
-  /* 点击委派 */
-  document.addEventListener('click', function (e) {
-    var t = e.target; if (!t || !t.closest) return;
-    if (t.closest('[data-act="rm-arrange"]')) { var rl = R(); arrange(!rl.arrange); return }
-    /* 布置模式：点 × 回收 */
-    var x = t.closest('.rm-x');
-    if (x && R().arrange) { e.preventDefault(); e.stopPropagation(); x.parentNode.remove(); return }
-    /* 买家具点评：rm-buy 已有扣款逻辑，这里补一句 */
-    var buy = t.closest('[data-act="rm-buy"]');
-    if (buy) { setTimeout(function () { var bb = document.getElementById('rmBubble'); if (bb) { bb.textContent = '买好了。' + pick(BUY_REPLY); bb.classList.add('on') } }, 300) }
-  });
+  function bind() {
+    var room = document.getElementById('bdRoom'); if (!room || room._bdBound) return;
+    room._bdBound = 1;
 
-  /* 布置拖拽 + 轻点旋转 */
+    document.getElementById('bdHim').addEventListener('click', function (e) { e.stopPropagation(); var rl = R(); speak(GONE[rl.t] ? '他不在家，白天他在公司。' : pick(LINES[rl.t])) });
+    document.getElementById('bdArrange').addEventListener('click', toggleArrange);
+    document.getElementById('bdNoteAdd').addEventListener('click', addNote);
+    document.getElementById('bdTimes').addEventListener('click', function (e) { var b = e.target.closest('[data-bt]'); if (b) setTime(b.getAttribute('data-bt')) });
+    document.getElementById('bdClose').addEventListener('click', function (e) { e.stopPropagation(); document.body.classList.remove('bd-full') });
+
+    /* 点房间空白开大图 */
+    room.addEventListener('click', function (e) {
+      if (e.target.closest('#bdHim') || e.target.closest('.bd-bubble') || e.target.closest('#bdClose') || e.target.closest('.bd-furn') || e.target.closest('.bd-x')) return;
+      document.body.classList.toggle('bd-full');
+    });
+
+    /* 布置：点 × 回收（在 click 委派） */
+    room.addEventListener('click', function (e) {
+      var x = e.target.closest('.bd-x');
+      if (x && R().arrange) { e.preventDefault(); e.stopPropagation(); x.parentNode.remove(); return }
+    });
+  }
+
+  /* 布置拖拽 + 轻点旋转（document 级） */
   var dragEl = null, sx = 0, sy = 0, ox = 0, oy = 0, moved = false;
   document.addEventListener('pointerdown', function (e) {
-    var f = e.target.closest && e.target.closest('.rm-it');
-    if (!f || !R().arrange) return;
-    if (e.target.closest('.rm-x')) return;
+    var f = e.target.closest && e.target.closest('.bd-furn');
+    if (!f || !R().arrange || e.target.closest('.bd-x')) return;
     dragEl = f; moved = false;
-    var r = f.getBoundingClientRect(), room = document.querySelector('#view .rm-room').getBoundingClientRect();
+    var r = f.getBoundingClientRect(), room = document.getElementById('bdRoom').getBoundingClientRect();
     sx = e.clientX; sy = e.clientY; ox = r.left - room.left; oy = r.top - room.top;
     e.preventDefault();
   });
@@ -21059,28 +21194,20 @@ function openApp(k) {
     if (moved) { dragEl.style.left = (ox + dx) + 'px'; dragEl.style.top = (oy + dy) + 'px' }
   });
   document.addEventListener('pointerup', function () {
-    if (dragEl && !moved) { var deg = (dragEl.__rot || 0) + 45; dragEl.__rot = deg; dragEl.style.transform += ' rotate(' + deg + 'deg)' }
+    if (dragEl && !moved) { var deg = (dragEl.__rot || 0) + 45; dragEl.__rot = deg; dragEl.style.transform = 'rotate(' + deg + 'deg) translate(-50%,-50%)' }
     dragEl = null;
   });
 
-  /* 每 7 秒走动 */
+  /* 每 3 分钟挪一次 */
   setInterval(function () {
     var rl = R(); if (GONE[rl.t]) return;
     rl.spot = (rl.spot + 1) % SPOTS.length;
-    var him = document.getElementById('rmHim'); if (!him) return;
+    var him = document.getElementById('bdHim'); if (!him) return;
     var s = SPOTS[rl.spot % SPOTS.length];
-    him.style.left = s[1]; him.style.top = s[2];
-  }, 7000);
+    him.style.left = s.l; him.style.top = s.t;
+  }, 180000);
 
-  /* 挂在 renderRoomApp 之后 */
-  var _rr = window.renderRoomApp;
-  if (typeof _rr === 'function') {
-    window.renderRoomApp = function () {
-      var ret = _rr.apply(this, arguments);
-      setTimeout(inject, 0); setTimeout(inject, 300);
-      return ret;
-    };
-  }
+  window.renderRoomApp = renderBedroom;
 })();
 </script>
 <div id="ntfBar" style="display:none" onclick="ntfGo()"></div>
