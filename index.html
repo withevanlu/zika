@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta name="x-build" content="0b85c63484">
+<meta name="x-build" content="7fe06d889f">
 <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
 <meta charset="UTF-8">
 <meta name="theme-color" content="#7CB342">
@@ -2748,14 +2748,13 @@ body.rm-full .rm-room{margin:0;border-radius:0;min-height:calc(100dvh - 52px)}
 .bd-rain{position:absolute;inset:0;opacity:0;pointer-events:none;background:repeating-linear-gradient(115deg,rgba(120,140,170,.13) 0 1px,transparent 1px 14px);animation:bdrain .5s linear infinite}
 .bd-room.rain .bd-rain{opacity:1}
 @keyframes bdrain{to{background-position:40px 60px}}
-.bd-furn{position:absolute;display:flex;align-items:center;justify-content:center;font-size:38px;transform:translate(-50%,-50%);filter:drop-shadow(0 5px 7px rgba(0,0,0,.14));user-select:none}
+.bd-furn{position:absolute;display:flex;align-items:center;justify-content:center;font-size:38px;transform:translate(-50%,-50%);filter:drop-shadow(0 5px 7px rgba(0,0,0,.14));user-select:none;touch-action:none}
 .bd-furn.bd-arranging{outline:2px dashed rgba(74,58,46,.5);outline-offset:3px;border-radius:8px;cursor:grab}
 .bd-x{position:absolute;right:-8px;top:-8px;width:20px;height:20px;border-radius:50%;background:#C73A3A;color:#fff;font-size:12px;line-height:20px;text-align:center;z-index:5;cursor:pointer}
 .bd-him{position:absolute;z-index:6;width:40px;display:flex;flex-direction:column;align-items:center;cursor:pointer;transition:left .8s,top .8s;transform:translate(-50%,-100%)}
 .bd-him .bd-head{width:34px;height:34px;border-radius:50%;overflow:hidden;border:2px solid rgba(201,164,106,.85);box-shadow:0 0 0 3px rgba(201,164,106,.16),0 4px 10px rgba(0,0,0,.2);display:flex;align-items:center;justify-content:center;background:#fff}
 .bd-him .bd-head img,.bd-him .bd-head svg{width:100%;height:100%;object-fit:cover}
 .bd-him .bd-face{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#fff;background:linear-gradient(160deg,#8E3B4C,#5E2230)}
-.bd-him .bd-body{width:18px;height:20px;border-radius:6px 6px 0 0;background:#2B2B33;margin-top:-3px}
 .bd-him.gone{opacity:.4}
 .bd-bubble{position:absolute;left:12px;right:12px;bottom:12px;z-index:7;background:#fff;border-radius:13px;padding:10px 13px;box-shadow:0 8px 20px rgba(0,0,0,.16);font-size:13px;line-height:1.5;color:#3A3B3E;display:none}
 .bd-bubble.on{display:block}
@@ -2775,6 +2774,12 @@ body.bd-full .bd-room{margin:0;border-radius:0;height:calc(100dvh - 52px)}
 .bd-boardrow button{border:none;border-radius:10px;background:#4A3A2E;color:#fff;font-size:13px;padding:0 14px;font-family:inherit;flex:0 0 auto}
 /* 雷达头像填充 */
 .rd-avatar img,.rd-avatar svg{width:100%;height:100%;object-fit:cover}
+
+/* 小屋页固定，不往下滑露底图 */
+html.lock-all #view{overflow:hidden!important}
+body.room-mode #view{height:100dvh!important;max-height:100dvh!important;overflow:hidden!important;display:flex;flex-direction:column}
+body.room-mode .bd-room{flex:1 1 auto;height:auto!important;min-height:200px;max-height:none;overflow:hidden;touch-action:none;margin:8px 14px}
+body.room-mode .bd-board{flex:0 0 auto;max-height:34vh;overflow-y:auto}
 </style>
 </head>
 <body>
@@ -5169,6 +5174,7 @@ function render(v){
   try{
     document.body.classList.toggle('chat-mode',v==='chat');
     document.body.classList.toggle('wlt-mode',v==='wallet');
+    document.body.classList.toggle('room-mode',v==='room');
   }catch(e){}
   if(v==='home')renderHome();
   else if(v==='profile')renderProfile();
@@ -5921,16 +5927,20 @@ function addReadButtons() {
 var _renderRead = renderRead;
 renderRead = function () { _renderRead(); try { addReadButtons() } catch (e) { } };
 function renderHome(){
-  /* ★ 雷达固定放第二页：在首页真正渲染前，确保它有第二页的格子（只做一次） */
+  /* ★ 雷达必须进 appOrder，否则根本不会渲染到桌面（之前就是漏了这一步） */
   try{
     if(!state.settings)state.settings={};
-    if(!state.settings._radarPlaced){
-      state.settings._radarPlaced=1;
+    if(Array.isArray(state.appOrder) && state.appOrder.indexOf('radar')<0){
+      state.appOrder.push('radar');
+      try{save()}catch(e){}
+    }
+    /* 雷达固定放第二页第一个空格（只做一次） */
+    if(!state.settings._radarPlaced2){
       var _ap=(state.appPos && typeof state.appPos==='object' && !Array.isArray(state.appPos))?state.appPos:null;
       if(_ap && !_ap['radar']){
         var _used={};
         for(var _k in _ap){ var _q=_ap[_k]; if(_q && _q.p===1) _used[_q.r*4+_q.c]=1 }
-        for(var _c=0;_c<20;_c++){ if(!_used[_c]){ _ap['radar']={p:1,r:Math.floor(_c/4),c:_c%4}; break } }
+        for(var _c=0;_c<20;_c++){ if(!_used[_c]){ _ap['radar']={p:1,r:Math.floor(_c/4),c:_c%4}; state.settings._radarPlaced2=1; break } }
       }
     }
   }catch(e){}
@@ -20725,11 +20735,16 @@ function openApp(k) {
     } catch (e) { return false }
   }
 
+  /* 小屋页也要锁：不然往下滑会露出底图 */
+  function isRoom() {
+    try { return (location.hash || '').replace('#', '') === 'room' } catch (e) { return false }
+  }
+
   function sync() {
     try {
       css();
       readVVH();
-      document.documentElement.classList.toggle('lock-all', isChat() || isHome());
+      document.documentElement.classList.toggle('lock-all', isChat() || isHome() || isRoom());
     } catch (e) { }
   }
 
@@ -21081,7 +21096,7 @@ function openApp(k) {
       + '<div class="bd-furn" data-f="plant" style="left:14%;top:74%">🪴</div>'
       + '<div class="bd-furn" data-f="door" style="left:90%;top:14%">🚪</div>'
       + '<div class="bd-furn" data-f="lamp" style="left:20%;top:46%">💡</div>'
-      + '<div class="bd-him" id="bdHim"><span class="bd-head">' + himHead() + '</span><span class="bd-body"></span></div>'
+      + '<div class="bd-him" id="bdHim"><span class="bd-head">' + himHead() + '</span></div>'
       + '<div class="bd-bubble" id="bdBubble"></div>'
       + '<button class="bd-closefull" id="bdClose">×</button>'
       + '</div>';
