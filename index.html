@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta name="x-build" content="963b4ab630">
+<meta name="x-build" content="793e27eebb">
 <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
 <meta charset="UTF-8">
 <meta name="theme-color" content="#7CB342">
@@ -2641,6 +2641,78 @@ body.cc-selecting #ntfBar{display:none!important}
 
 /* 非选择模式：不要渲染/显示勾选圈（否则 absolute 定位会跑到别处变成一个白圆圈） */
 .cc-li:not(.pickable) .cc-selbox{display:none!important}
+
+
+/* ===== 雷达（灵体罗盘） ===== */
+.radar-wrap{display:flex;flex-direction:column;align-items:center;padding:6px 22px calc(26px + env(safe-area-inset-bottom))}
+.rd-status{font-size:12px;color:#6B6D72;letter-spacing:.28em;margin:6px 0 14px;text-align:center;min-height:18px}
+.rd-compass{position:relative;width:min(320px,84vw);aspect-ratio:1}
+.rd-compass svg{width:100%;height:100%;display:block}
+.rd-sweep{position:absolute;inset:0;border-radius:50%;overflow:hidden;opacity:.9}
+.rd-sweep::before{content:"";position:absolute;inset:0;border-radius:50%;
+  background:conic-gradient(from 0deg, rgba(201,164,106,0) 0deg, rgba(201,164,106,.3) 28deg, rgba(201,164,106,0) 62deg);
+  animation:rdspin 1.6s linear infinite}
+.rd-sweep.fast::before{animation-duration:.7s}
+@keyframes rdspin{to{transform:rotate(360deg)}}
+.rd-core{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;color:#3A3B3E}
+.rd-big{font-size:17px;font-weight:700;letter-spacing:.02em}
+.rd-sub{font-size:11px;color:#9A93AB;margin-top:3px}
+.rd-avatar{position:absolute;width:36px;height:36px;border-radius:50%;overflow:hidden;border:2px solid rgba(201,164,106,.85);
+  box-shadow:0 0 0 4px rgba(201,164,106,.14),0 0 20px rgba(201,164,106,.32);cursor:pointer;
+  transform:translate(-50%,-50%);transition:left .6s,top .6s}
+.rd-face{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#fff;background:linear-gradient(160deg,#8E3B4C,#5E2230)}
+.rd-btn{margin-top:18px;border:none;border-radius:99px;padding:13px 34px;font-size:15px;font-weight:600;letter-spacing:.08em;
+  background:#141518;color:#fff;box-shadow:0 10px 24px rgba(20,21,24,.22)}
+.rd-btn:active{transform:scale(.97)}
+.rd-hint{margin-top:10px;font-size:10.5px;color:#9A93AB;text-align:center;line-height:1.6}
+#rdCard{position:fixed;inset:0;z-index:90;background:rgba(20,18,17,.4)}
+.rd-card{position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:22px 22px 0 0;padding:18px 20px calc(20px + env(safe-area-inset-bottom))}
+.rd-card h3{font-size:16px;font-weight:700;margin-bottom:10px}
+.rd-card .row{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid rgba(17,18,20,.08)}
+.rd-card .row:last-of-type{border-bottom:none}
+.rd-card .lb{width:62px;flex:0 0 auto;font-size:11px;color:#9A93AB}
+.rd-card .val{flex:1;font-size:14.5px;line-height:1.55}
+.rd-close{margin-top:14px;width:100%;border:1px solid rgba(17,18,20,.12);border-radius:13px;padding:12px;background:transparent;color:#6B6D72;font-size:14px}
+
+
+/* ===== 心声（查手机 App，软木板便签） ===== */
+#hp .xs-board{display:flex;flex-direction:column;gap:12px;background:rgba(255,255,255,.06);border-radius:16px;padding:14px;min-height:120px}
+#hp .xs-empty{color:#9a9aa6;font-size:13px;text-align:center;padding:30px 0}
+#hp .xs-note{position:relative;background:#FBF5E6;border-radius:5px;padding:13px 13px 11px;color:#4A3B2C;box-shadow:0 5px 14px rgba(0,0,0,.25);transform:rotate(-1deg)}
+#hp .xs-note:nth-child(2n){transform:rotate(1deg);background:#F7F0DD}
+#hp .xs-pin{position:absolute;left:50%;top:-7px;width:15px;height:15px;margin-left:-7.5px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#E86A6A,#A93A3A)}
+#hp .xs-ref{font-size:10.5px;color:#B8A28A;margin-bottom:6px}
+#hp .xs-ref b{color:#8A755F;background:#F1E6CC;padding:1px 6px;border-radius:5px}
+#hp .xs-heart{font-size:15px;line-height:1.6;font-family:"Songti SC",Georgia,serif}
+#hp .xs-time{margin-top:7px;font-size:9.5px;color:#C0AB90;text-align:right}
+#hp .xs-gen{width:100%;margin-top:14px;border:none;border-radius:14px;padding:13px;font-size:14px;font-weight:600;color:#20150A;background:linear-gradient(180deg,#E4C79A,#C9A46A);font-family:inherit}
+#hp .xs-tip{margin-top:8px;font-size:10.5px;color:#9a9aa6;text-align:center;line-height:1.6}
+
+
+/* ===== 小屋互动层 ===== */
+#view .rm-timebar{display:flex;gap:6px;padding:10px 16px 2px;flex-wrap:wrap}
+#view .rm-timebar button{flex:1;min-width:52px;border:1px solid rgba(17,18,20,.1);border-radius:99px;background:#fff;color:#6B6D72;font-size:12px;padding:7px 0;font-family:inherit}
+#view .rm-timebar button.on{background:#141518;border-color:#141518;color:#fff;font-weight:600}
+#view .rm-room{position:relative}
+#view .rm-room.night{filter:brightness(.55) saturate(.8)}
+#view .rm-room.rain{filter:saturate(.7) brightness(.92)}
+#view .rm-him{position:absolute;z-index:50;width:44px;display:flex;flex-direction:column;align-items:center;cursor:pointer;transition:left .6s,top .6s}
+#view .rm-him .rm-him-head{width:34px;height:34px;border-radius:50%;background:linear-gradient(160deg,#8E3B4C,#5E2230);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;box-shadow:0 4px 10px rgba(90,40,50,.25)}
+#view .rm-him .rm-him-body{width:20px;height:22px;border-radius:6px 6px 0 0;background:#2B2B33;margin-top:-3px}
+#view .rm-him.gone{opacity:.4}
+#view .rm-bubble{position:absolute;left:12px;right:12px;bottom:12px;z-index:52;background:#fff;border-radius:13px;padding:10px 13px;box-shadow:0 8px 20px rgba(0,0,0,.16);font-size:13px;line-height:1.5;color:#3A3B3E;display:none}
+#view .rm-bubble.on{display:block}
+#view .rm-board{margin:12px 16px;border-radius:16px;background:#8A6A4A;padding:12px;box-shadow:inset 0 0 0 3px #6E5139}
+#view .rm-board h4{color:#F5E9D6;font-size:12px;letter-spacing:.08em;margin:2px 2px 8px}
+#view .rm-pins{display:flex;flex-direction:column;gap:8px;min-height:30px}
+#view .rm-pin{position:relative;background:#FBF3DF;border-radius:4px;padding:10px 12px;font-size:13px;color:#4A3A2E;line-height:1.5;box-shadow:0 3px 8px rgba(0,0,0,.18)}
+#view .rm-pin::before{content:"";position:absolute;left:50%;top:-6px;width:12px;height:12px;margin-left:-6px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#E86A6A,#A93A3A)}
+#view .rm-pin .rm-pin-who{display:block;font-size:10px;color:#B08A75;margin-top:4px;text-align:right}
+#view .rm-boardrow{display:flex;gap:8px;margin-top:10px}
+#view .rm-boardrow input{flex:1;border:1px solid #D9CBB8;border-radius:10px;padding:9px 11px;font-size:14px;font-family:inherit;background:#FBF7EE;outline:none;min-width:0}
+#view .rm-boardrow button{border:none;border-radius:10px;background:#4A3A2E;color:#fff;font-size:13px;padding:0 14px;font-family:inherit;flex:0 0 auto}
+#view .rm-it.rm-arranging{outline:2px dashed rgba(74,58,46,.5);outline-offset:2px;cursor:grab}
+#view .rm-x{position:absolute;right:-8px;top:-8px;width:20px;height:20px;border-radius:50%;background:#C73A3A;color:#fff;font-size:12px;line-height:20px;text-align:center;z-index:5;cursor:pointer}
 </style>
 </head>
 <body>
@@ -2877,7 +2949,8 @@ var SCHED_BLOCKS=[
     ['在煮咖啡','只煮一杯，第二杯的习惯还留着'],
     ['看天气','顺手查了你那边的天气'],
     ['在拉伸','腰有点紧，昨天坐太久'],
-    ['在阳台','早上风凉，站了一会儿']
+    ['在阳台','早上风凉，站了一会儿'],
+    ['收拾行李','要出差，早上把箱子合上了','出差']
   ]},
   {h:8, pool:[
     ['早餐','看到你会喜欢的点心，顺手拍了张照'],
@@ -2887,7 +2960,9 @@ var SCHED_BLOCKS=[
     ['在打电话','和 SONDER 那边过一遍今天的排期'],
     ['在挑领带','两条黑的，选了很久'],
     ['在想你','想你会不会还在睡'],
-    ['在等你回消息','屏幕亮了三次都不是你']
+    ['在等你回消息','屏幕亮了三次都不是你'],
+    ['在去机场的路上','今天出差，车开得很稳','出差'],
+    ['在高铁上','看窗外的城市往后倒','出差']
   ]},
   {h:9, pool:[
     ['到万甄','上午的会九点半，先过一遍日程','公司'],
@@ -2897,7 +2972,8 @@ var SCHED_BLOCKS=[
     ['在签文件','一叠授权文件，签到最后一张才抬头','公司'],
     ['在见人','对方带着方案来的，他听完只说了一句','公司'],
     ['在回邮件','英文邮件，措辞比中文客气','公司'],
-    ['在想你','会议室的窗外，想起你说过的一句话']
+    ['在想你','会议室的窗外，想起你说过的一句话'],
+    ['出差 · 酒店','刚办完入住，给你发了定位','出差']
   ]},
   {h:10, pool:[
     ['在开会','项目会，中途看了一次手机','公司'],
@@ -2908,7 +2984,8 @@ var SCHED_BLOCKS=[
     ['在开会 · 走神','在想晚上要不要去见你','公司'],
     ['在听汇报','报表数字不对，他让人重做','公司'],
     ['在楼下','下来拿个东西，顺便抽了半支烟'],
-    ['在打电话','和律师确认一份合同','公司']
+    ['在打电话','和律师确认一份合同','公司'],
+    ['拜访朋友','顺路去了朋友家坐了一会儿','外出']
   ]},
   {h:12, pool:[
     ['午餐 · 公司','随便吃了点，问你吃了没'],
@@ -2930,7 +3007,9 @@ var SCHED_BLOCKS=[
     ['在球场上','风偏了，球差一点进洞','球场'],
     ['在马厩','给马换了个新的马鞍垫','马场'],
     ['在开会','投资方的电话会，他几乎没说话','公司'],
-    ['在想你','想问你下午忙不忙']
+    ['在想你','想问你下午忙不忙'],
+    ['在散步','两个会之间下楼走了一圈','散步'],
+    ['拜访朋友','朋友约了下午茶，聊了几句','外出']
   ]},
   {h:16, pool:[
     ['在开会','第二个会，比预想的长','公司'],
@@ -2941,7 +3020,11 @@ var SCHED_BLOCKS=[
     ['想你','在想要不要晚上直接去见你'],
     ['在试新样','玩具的手感不对，他捏了两遍','玩具'],
     ['在车上','去下一个地方，路上回了几条消息'],
-    ['在喝茶','难得空下来，让人泡了壶茶']
+    ['在喝茶','难得空下来，让人泡了壶茶'],
+    ['在看展','美术馆，挑了个工作日下午，人不多','看展'],
+    ['在画展','停在一幅画前看了很久','看展'],
+    ['在超市','买点家里缺的东西','家'],
+    ['在做家务','把书房和客厅都收了一遍','家']
   ]},
   {h:18, pool:[
     ['下班','路上有点堵'],
@@ -2951,7 +3034,8 @@ var SCHED_BLOCKS=[
     ['想见你','打电话问"晚上有空吗"'],
     ['在车上 · 堵着','给你发了条语音，又删了'],
     ['在回家路上','想着一会儿要不要给你打电话'],
-    ['在楼下','站着走了两圈，才上楼']
+    ['在楼下','站着走了两圈，才上楼'],
+    ['在散步','下班后沿着河走，天还没黑','散步']
   ]},
   {h:19, pool:[
     ['在吃饭','一个人，吃得很快'],
@@ -2961,6 +3045,8 @@ var SCHED_BLOCKS=[
     ['在想你','今天没怎么见到你，有点不习惯'],
     ['在书房','文件摊开，看了两页就走神'],
     ['在开一瓶酒','开了，但只倒了半杯'],
+    ['在健身','练完在拉伸，浑身发热','健身'],
+    ['夜跑','绕小区两圈，风很凉','健身'],
     ['在给 SONDER 回电话','周末的事提前处理','玩具']
   ]},
   {h:21, pool:[
@@ -2971,7 +3057,8 @@ var SCHED_BLOCKS=[
     ['在挑衣服','翻衣柜，想着见你穿哪件'],
     ['在听唱片','老唱片，音量开得很小'],
     ['在整理东西','把一个旧盒子翻出来看了很久'],
-    ['在洗澡','水有点烫']
+    ['在洗澡','水有点烫'],
+    ['在做家务','洗了衣服，晾到阳台','家']
   ]},
   {h:23, pool:[
     ['还没睡','躺着刷手机，其实在等你'],
@@ -2980,7 +3067,8 @@ var SCHED_BLOCKS=[
     ['在写点东西','在备忘录里记了一句和你有关的话'],
     ['在看你的消息记录','往回翻了几天的聊天'],
     ['在关灯','关了一半又坐回去'],
-    ['在等一句话','想着你会不会说"晚安"']
+    ['在等一句话','想着你会不会说"晚安"'],
+    ['还没睡','明天出差，行李已经放在门口','出差']
   ]}
 ];
 
@@ -3740,6 +3828,7 @@ function migrate(s){
   if(s.settings.surveyPct===undefined)s.settings.surveyPct=8;   /* 他主动发问卷概率 */
   /* ★ 网站名称：用户可以自己输入（默认"沉与昕之恋"） */
   if(s.settings.siteName==null)s.settings.siteName='与沉';
+  if(s.settings.hisTransferAmt===undefined)s.settings.hisTransferAmt=0;
   if(s.settings.profileHandle===undefined)s.settings.profileHandle='@lu.chen';
   if(!s.profileBox)s.profileBox=[];
   if(s.profileFollowed===undefined)s.profileFollowed=true;
@@ -4958,7 +5047,7 @@ function coverStyle(){
 }
 
 /* ================= 路由 ================= */
-var VIEWS=['home','profile','chat','moments','mail','cards','diary','companion','tide','wallet','me','tarot','widgets','music','shop','survey','game','guide','read','schedule','memo','period','pet','room','mengxi','hisphone'];
+var VIEWS=['home','profile','chat','moments','mail','cards','diary','companion','tide','wallet','me','tarot','widgets','music','shop','survey','game','guide','read','schedule','memo','period','pet','room','mengxi','hisphone','radar'];
 var _routedOnce=false;
 function router(){
   var h=location.hash.replace('#','');
@@ -5044,6 +5133,7 @@ function render(v){
   else if(v==='period')renderPeriod();
   else if(v==='pet')renderPets();
   else if(v==='room')renderRoomApp();
+  else if(v==='radar'){ try{ renderRadar() }catch(e){ try{goView('home')}catch(e2){} } }
   else renderMe();
   /* 一起听开着的时候：离开听歌界面自动缩成悬浮条，回到听歌界面自动收起 */
   try{if(typeof musBarToggle==='function')musBarToggle()}catch(e){}
@@ -5111,7 +5201,8 @@ function appListDefs(){
     {v:'tarot',n:'塔罗',c:'#7B6BB0',ic:'<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#fff" stroke-width="1.7" stroke-linejoin="round"><path d="M12 3v18M3 12h18M5.6 5.6l12.8 12.8M18.4 5.6L5.6 18.4"/><circle cx="12" cy="12" r="3"/></svg>'},
     {v:'hisphone',n:'查手机',c:'#3A3F4B',ic:'<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"><rect x="6" y="2.5" width="12" height="19" rx="3"/><path d="M10.5 5.2h3"/><path d="M9.5 12.5h5M9.5 16h3"/></svg>'},
     {v:'mengxi',n:'梦隙',c:'#C08FA8',ic:'<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"><path d="M3.5 7.5a2 2 0 0 1 2-2h3.6l1.7 2h5.7a2 2 0 0 1 2 2v7.5a2 2 0 0 1-2 2H5.5a2 2 0 0 1-2-2z"/><path d="M8 13.2h8M8 16h5"/></svg>'},
-    {v:'widgets',n:'组件库',c:'#8E9BB3',ic:'<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#fff" stroke-width="1.7" stroke-linejoin="round"><rect x="3" y="3" width="7.5" height="7.5" rx="2.2"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="2.2"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="2.2"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="2.2"/></svg>'},  ];
+    {v:'widgets',n:'组件库',c:'#8E9BB3',ic:'<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#fff" stroke-width="1.7" stroke-linejoin="round"><rect x="3" y="3" width="7.5" height="7.5" rx="2.2"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="2.2"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="2.2"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="2.2"/></svg>'},
+    {v:'radar',n:'雷达',c:'#2B2B33',ic:'<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5 13 13l-4.5 2.5L11 11z"/></svg>'},  ];
 }
 var APPS=appListDefs();
 /* ===================== 桌面 App 网格：4 列 × 5 行 = 20 格/页 =====================
@@ -10588,10 +10679,11 @@ function rollLoginEvents(){
 
 
 /* ================= 转账 ================= */
-var TRANSFER_AMOUNTS=[5.20,8.88,13.14,52.00,66.66,88.88,199.00];
+var TRANSFER_AMOUNTS=[520,1314,5200,888,999,9999,666];
 function showTransfer(){
   var c=activeContact();if(!c)return;
-  var amt=pick(TRANSFER_AMOUNTS);
+  var s8=(typeof state!=='undefined'&&state.settings)||{};
+  var amt=(s8.hisTransferAmt>0)?s8.hisTransferAmt:pick(TRANSFER_AMOUNTS);
   state.wallet=state.wallet||{balance:888,log:[]};
   state.messages.push({id:uid(),contactId:c.id,dir:'in',kind:'transfer',amount:amt,ts:now()});
   save();renderChat();toast(esc(c.name)+' 给你转账 ¥'+amt.toFixed(2)+'，在卡片上收下吧');
@@ -11402,6 +11494,7 @@ document.addEventListener('click',function(e){
     else if(act==='transfer-out')sheetTransferOut();
     else if(act==='transfer-quick')sendTransfer(btn.getAttribute('data-amt'));
     else if(act==='transfer-send'){var tfv=$('#tfAmt');sendTransfer(tfv?tfv.value:0)}
+  else if(act==='his-transfer-save'){var hv=$('#hisAmt'); state.settings.hisTransferAmt=Math.max(0,parseFloat(hv?hv.value:0)||0); save(); toast('已保存：他给我转账 '+(state.settings.hisTransferAmt>0?'¥'+state.settings.hisTransferAmt:'随机金额')); }
     else if(act==='transfer-decide')transferDecide(id,btn.getAttribute('data-ok')==='1');
     else if(act==='post-like')toggleLike(btn.getAttribute('data-id'));
     else if(act==='backup-export')backupExport()
@@ -11881,7 +11974,11 @@ function sheetTransferOut(){
   if(!c)return;
   var rows='';
   for(var i=0;i<TRANSFER_AMOUNTS.length;i++)rows+='<button class="amt-chip" data-act="transfer-quick" data-amt="'+TRANSFER_AMOUNTS[i]+'">¥'+TRANSFER_AMOUNTS[i].toFixed(2)+'</button>';
-  openSheet('<h2>给 '+esc(c.name)+' 转账</h2><div class="amt-chips">'+rows+'</div><label>或输入金额</label><div style="display:flex;gap:8px"><input id="tfAmt" type="number" step="0.01" min="0.01" placeholder="0.00"><button class="btn" data-act="transfer-send">转账</button></div><div class="actions"><button class="cancel" data-act="sheet-close">取消</button></div>');
+  var hisAmt=(state.settings&&state.settings.hisTransferAmt)||0;
+  openSheet('<h2>给 '+esc(c.name)+' 转账</h2><div class="amt-chips">'+rows+'</div><label>或输入金额</label><div style="display:flex;gap:8px"><input id="tfAmt" type="number" step="0.01" min="0.01" placeholder="0.00"><button class="btn" data-act="transfer-send">转账</button></div>'
+    +'<div style="margin-top:14px"><label>陆沉主动给我转账的金额（0 = 随机）</label>'
+    +'<div style="display:flex;gap:8px"><input id="hisAmt" type="number" step="0.01" min="0" placeholder="0" value="'+hisAmt+'"><button class="btn ghost" data-act="his-transfer-save">保存</button></div></div>'
+    +'<div class="actions"><button class="cancel" data-act="sheet-close">取消</button></div>');
 }
 function sendTransfer(amt){
   var c=activeContact();if(!c)return;
@@ -18078,7 +18175,7 @@ window.mengxiEnsure=mx;
     { k: 'photos', n: '相册', cls: 'photos', ic: S('<circle cx="12" cy="12" r="3" fill="currentColor" stroke="none"/><path d="M12 3.6v2.2M12 18.2v2.2M3.6 12h2.2M18.2 12h2.2M6.1 6.1l1.6 1.6M16.3 16.3l1.6 1.6M17.9 6.1l-1.6 1.6M7.7 16.3l-1.6 1.6"/>') },
     { k: 'msgs', n: '信息', cls: 'msgs', ic: S('<path d="M4.2 6.2h15.6v9.4H9.4l-5.2 4z" fill="currentColor" stroke="none"/>') },
     { k: 'shop', n: '购物', cls: 'shop', ic: S('<path d="M4.5 8.2h15l-1.2 11.3H5.7z"/><path d="M8.8 8.2V6.4a3.2 3.2 0 0 1 6.4 0v1.8"/>') },
-    { k: 'settings', n: '设置', cls: 'settings', ic: S('<circle cx="12" cy="12" r="3.1"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-2.7 1.1 2 2 0 1 1-4 0 1.6 1.6 0 0 0-2.7-1.1l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1A1.6 1.6 0 0 0 4.6 15a2 2 0 1 1 0-4 1.6 1.6 0 0 0 1.1-2.7l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1A1.6 1.6 0 0 0 11 4.6a2 2 0 1 1 4 0 1.6 1.6 0 0 0 2.7 1.1l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1A1.6 1.6 0 0 0 19.4 11a2 2 0 1 1 0 4z"/>') }
+    { k: 'xinsheng', n: '心声', cls: 'xinsheng', ic: S('<path d="M5 4h14v11l-3 3H8l-3-3z" fill="currentColor" stroke="none"/><path d="M9 8h6M9 11h4" stroke="#7A5100"/>') }, { k: 'settings', n: '设置', cls: 'settings', ic: S('<circle cx="12" cy="12" r="3.1"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-2.7 1.1 2 2 0 1 1-4 0 1.6 1.6 0 0 0-2.7-1.1l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1A1.6 1.6 0 0 0 4.6 15a2 2 0 1 1 0-4 1.6 1.6 0 0 0 1.1-2.7l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1A1.6 1.6 0 0 0 11 4.6a2 2 0 1 1 4 0 1.6 1.6 0 0 0 2.7 1.1l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1A1.6 1.6 0 0 0 19.4 11a2 2 0 1 1 0 4z"/>') }
   ];
   function iconHtml(a) {
     return '<div class="hp-app" data-hp="' + a.k + '"><div class="hp-ico ' + a.cls + '">' + a.ic
@@ -18342,7 +18439,9 @@ window.mengxiEnsure=mx;
         var d = String((s && s.date) || '');
         if (!txt) return;
         if (/出差|伦敦|飞|机场/.test(txt) && (!d || d.indexOf(t) >= 0 || d.indexOf('-') > 0)) { bonus += 4200; note = '出差路上走得多' }
-        else if (/健身|跑步|运动|球/.test(txt)) { bonus += 2600; note = '今天有运动' }
+        else if (/健身|跑步|运动|球|夜跑/.test(txt)) { bonus += 2600; note = '今天有运动' }
+    else if (/散步|走|逛|看展|画展|美术馆/.test(txt)) { bonus += 2200; note = '出门走了不少' }
+    else if (/做家务|打扫|整理|收拾/.test(txt)) { bonus += 1800; note = '在家也没闲着' }
         else if (/会议|开会|加班/.test(txt)) { bonus += 600; note = '会多' }
       });
     } catch (e) { }
@@ -18725,7 +18824,8 @@ window.mengxiEnsure=mx;
   }
 
   /* ---------- 内页 ---------- */
-  function openApp(k) {
+  function R_xinsheng(){ return (window.xinshengHTML && window.xinshengHTML()) || '<p class="hp-hint">心声模块未加载</p>' }
+function openApp(k) {
     if (k === 'photos') { openPhotos(); return }
     V.stack = [];
     renderView(k);
@@ -18735,7 +18835,7 @@ window.mengxiEnsure=mx;
     var v = el('hpView'), b = el('hpBody'), t = el('hpTitle');
     if (!noPush && V.view && V.view !== k) V.stack.push(V.view);
     V.view = k;
-    var names = { safari: 'Safari', notes: '备忘录', music: '音乐', health: '健康', weather: '天气', msgs: '信息', shop: '购物', settings: '设置' };
+    var names = { safari: 'Safari', notes: '备忘录', music: '音乐', health: '健康', weather: '天气', msgs: '信息', shop: '购物', settings: '设置', xinsheng: '心声' };
     t.textContent = names[k] || '';
     b.innerHTML = (R[k] || function () { return '<p class="hp-hint">还没做</p>' })();
     v.classList.add('on'); b.scrollTop = 0;
@@ -19008,7 +19108,7 @@ window.mengxiEnsure=mx;
     el('hpBody').innerHTML = html;
   }
 
-  var R = { safari: R_safari, notes: R_notes, msgs: R_msgs, shop: R_shop, health: R_health, weather: R_weather, music: R_music, settings: R_settings };
+  var R = { safari: R_safari, notes: R_notes, msgs: R_msgs, shop: R_shop, health: R_health, weather: R_weather, music: R_music, settings: R_settings, xinsheng: R_xinsheng };
 
   /* ---------- 刷新 ---------- */
   function doRefresh() {
@@ -20530,6 +20630,457 @@ window.mengxiEnsure=mx;
   }
   try { setTimeout(sync, 120); setTimeout(sync, 600); } catch (e) { }
   window.chatLockSync = sync;
+})();
+
+/* ================= 雷达（灵体罗盘）=================
+   罗盘扫描 → 判定「在/不在」(30% 不在) → 距离(连续, 米, 0.4~10m 偶发远→近)
+   → 方位 + 趋势 + 动作 + 链接程度 + 联动最近聊天热度。
+   数据存 state.radar，进备份；点陆沉头像看详情卡。 */
+(function () {
+  if (window.__radar) return; window.__radar = 1;
+
+  var ACTS = ['在牵你的手','亲亲你的脸','碰了下你的小拇指','玩你的手指','在轻轻碰你的发尾','在整理你的衣领',
+    '在替你拉一下被子','在揉你的头','搂着你的肩','在给你暖手','在捏你的脸','在把下巴搁在你肩上',
+    '在和你一起看手机','陪你学习','陪你工作','陪你发呆','陪你熬夜','陪你吃饭','陪你散步',
+    '在听你说话','在数你的呼吸','在学你说话的语气',
+    '在看你','盯着你发呆','在偷偷看你笑','在看你发呆','在看你写东西','在看你侧脸',
+    '在看你咬嘴唇','在从镜子里看你','在偷看你睡着的样子',
+    '在门边等你','在窗边','在替你挡风','在挡在你和风之间','在给你留灯','在等你回头',
+    '在守着你','在你睡着时守着','在替你注意身后','在看着你睡',
+    '在等你醒','在你一步外站着','在数你今天笑了几次','在记你今天说过的话','在你旁边静静待着',
+    '在听你房间里的声音','在看着窗外的雨','在替你留意时间'];
+  var DIRS = ['左前方','右前方','正前方','左手边','右手边','你身后','你头顶上方','门口','窗边','你旁边'];
+  var NEAR = ['在你身边','你左手边','你右手边','抬头就能看见我','就在你眼前','近得能碰到'];
+  var SAYS = ['我在这边。','别回头，我在你左边。','抬头就能看见我。','我就在你一步之外。','你手有点凉，想牵吗。','我看到你在看手机了。','我在门口，等你开门。','别怕，我在。','呼吸放轻一点，别把我吓走。','你找到我了。','我站你旁边，别侧过头。'];
+  var GONE = ['这一侧暂时没有回应。','他大概在更高的一层。','信号散在风里了，等一等。','现在别找，他在更远的地方。'];
+
+  function pick(a) { return a[Math.floor(Math.random() * a.length)] }
+  function rnd(a, b) { return a + Math.random() * (b - a) }
+  function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;') }
+  function now() { return Date.now() }
+  function R() { state.radar = state.radar || { present: true, dist: 5, angle: 210, link: 78, ts: 0, lastSeen: 0, trend: '静止', dir: '你旁边', look: '在看你', say: '', dist_prev: 5 }; return state.radar }
+  function levelOf(v) { return v >= 85 ? '如临身侧' : v >= 65 ? '清晰' : v >= 45 ? '微弱' : '若即若离' }
+
+  /* 最近聊天热度：条数 + 最近时间，越近越热 */
+  function chatHeat() {
+    try {
+      var msgs = state.messages || []; var now2 = now(); var n = 0, hot = 0;
+      for (var i = msgs.length - 1; i >= 0 && n < 50; i--) {
+        var m = msgs[i]; if (!m || m.kind === 'transfer' || m.kind === 'gift') continue;
+        n++; var age = now2 - (m.ts || 0);
+        if (age < 3600e3) hot += 2; else if (age < 6 * 3600e3) hot += 1;
+      }
+      return { n: n, hot: Math.min(12, hot) };
+    } catch (e) { return { n: 0, hot: 0 } }
+  }
+
+  function scan() {
+    var r = R(); var heat = chatHeat();
+    /* 在不在：30% 不在；但刚判定"在"的 1~3 小时内保持"在"（他停留） */
+    var stay = (r.lastSeen && (now() - r.lastSeen < (r.stayMs || 3600e3)));
+    if (stay) r.present = true;
+    else r.present = Math.random() > 0.30;
+
+    if (!r.present) {
+      r.link = Math.max(20, r.link - rnd(6, 18));
+      r.trend = '暂无回应'; r.dir = '未知'; r.look = '—'; r.say = pick(GONE);
+      r.ts = now();
+      return r;
+    }
+    r.lastSeen = now();
+    r.stayMs = rnd(3600e3, 3 * 3600e3);
+
+    /* 距离连续：偶发"刚到这侧"远→近；聊天越热越近 */
+    var justArrived = Math.random() < 0.22;
+    if (justArrived) r.dist = rnd(12, 22);
+    else {
+      var pull = heat.hot * 0.25; /* 热度把距离拉近 */
+      r.dist = Math.max(0.4, Math.min(10, r.dist + rnd(-1.4, 1.4) - pull));
+    }
+    r.trend = r.dist < r.dist_prev - 0.5 ? '正在靠近' : (r.dist > r.dist_prev + 0.5 ? '正在走远' : '就在原地');
+    r.dist_prev = r.dist;
+    r.angle = (r.angle + rnd(-46, 46) + 360) % 360;
+    r.dir = r.dist < 1.2 ? pick(NEAR) : pick(DIRS);
+    r.look = pick(ACTS);
+    r.say = pick(SAYS);
+    r.link = Math.max(20, Math.min(98, (r.dist < 1.2 ? r.link + rnd(2, 7) : r.link + rnd(-3, 3))));
+    r.ts = now();
+    try { save() } catch (e) { }
+    return r;
+  }
+
+  function renderRadar() {
+    var r = R();
+    var h = '<div class="page-top"><button class="back" data-view="home">' + (typeof ICON_BACK !== 'undefined' ? ICON_BACK : '‹') + '</button><span class="pt">雷达</span></div>';
+    h += '<div class="radar-wrap">'
+      + '<div class="rd-status" id="rdStatus">正在感应他的频段…</div>'
+      + '<div class="rd-compass"><svg viewBox="0 0 320 320">'
+      + '<circle cx="160" cy="160" r="152" fill="rgba(20,18,30,.5)" stroke="rgba(180,170,210,.22)"/>'
+      + '<circle cx="160" cy="160" r="120" fill="none" stroke="rgba(180,170,210,.14)"/>'
+      + '<circle cx="160" cy="160" r="84" fill="none" stroke="rgba(180,170,210,.12)"/>'
+      + '<circle cx="160" cy="160" r="44" fill="none" stroke="rgba(180,170,210,.1)"/>'
+      + '<g stroke="rgba(180,170,210,.3)"><line x1="160" y1="8" x2="160" y2="26"/><line x1="160" y1="294" x2="160" y2="312"/><line x1="8" y1="160" x2="26" y2="160"/><line x1="294" y1="160" x2="312" y2="160"/></g>'
+      + '<g fill="rgba(237,233,244,.7)" font-size="12" text-anchor="middle"><text x="160" y="42">北</text><text x="160" y="302">南</text><text x="272" y="165">东</text><text x="48" y="165">西</text></g>'
+      + '<circle cx="160" cy="160" r="3" fill="rgba(201,164,106,.8)"/></svg>'
+      + '<div class="rd-sweep" id="rdSweep"></div>'
+      + '<div class="rd-core" id="rdCore"><div class="rd-big">未开始</div><div class="rd-sub">点下方开始扫描</div></div>'
+      + '<div class="rd-avatar" id="rdAvatar" style="display:none"><span class="rd-face">陆</span></div>'
+      + '</div>'
+      + '<button class="rd-btn" id="rdBtn" data-act="rd-scan">开始扫描</button>'
+      + '<div class="rd-hint" id="rdHint">扫一次约 4 秒 · 他可能刚好不在</div></div>';
+
+    var view = document.getElementById('view');
+    if (view) view.innerHTML = h;
+    paint(r);
+  }
+
+  function paint(r) {
+    var st = document.getElementById('rdStatus'), core = document.getElementById('rdCore');
+    var av = document.getElementById('rdAvatar'), hint = document.getElementById('rdHint');
+    if (!st) return;
+    if (!r.present) {
+      st.textContent = '没有捕捉到';
+      core.innerHTML = '<div class="rd-big">暂无回应</div><div class="rd-sub">这一侧空空的</div>';
+      if (av) { av.style.display = 'block'; av.style.left = '50%'; av.style.top = '50%'; av.style.opacity = '.5' }
+      if (hint) hint.textContent = r.say;
+      return;
+    }
+    var dist = r.dist, txt = dist < 1.2 ? r.dir : (dist < 10 ? dist.toFixed(1) : Math.round(dist)) + ' 米';
+    st.textContent = dist > 10 ? '他刚到这一侧，正在走近' : '信号确认 · 他在';
+    core.innerHTML = '<div class="rd-big">' + esc(txt) + '</div><div class="rd-sub">' + esc(r.dir) + ' · ' + esc(r.trend) + '</div>';
+    if (av) {
+      var compass = av.parentNode, w = compass.clientWidth || 320, c = w / 2;
+      var rr = (w * 0.5 - 30) * (0.3 + 0.7 * Math.min(1, dist / 8));
+      var rad = r.angle * Math.PI / 180;
+      av.style.display = 'block'; av.style.opacity = '1';
+      av.style.left = (c + rr * Math.cos(rad)) + 'px'; av.style.top = (c + rr * Math.sin(rad)) + 'px';
+    }
+    if (hint) hint.textContent = '点他的头像，看看他在做什么';
+  }
+
+  function openDetail() {
+    var r = R();
+    var title = document.getElementById('view');
+    if (title) {
+      var d = document.createElement('div'); d.id = 'rdCard';
+      var linkHtml = r.present ? (Math.round(r.link) + '% · ' + levelOf(r.link)) : levelOf(r.link);
+      var distTxt = !r.present ? '未知' : (r.dist < 1.2 ? '在你身边' : (r.dist < 10 ? r.dist.toFixed(1) : Math.round(r.dist)) + ' 米');
+      d.innerHTML = '<div class="rd-card">'
+        + '<h3>陆沉 · 雷达</h3>'
+        + '<div class="row"><span class="lb">状态</span><span class="val">' + (r.present ? '在 · ' + r.trend : '不在 · 这一侧没有回应') + '</span></div>'
+        + '<div class="row"><span class="lb">链接程度</span><span class="val">' + esc(linkHtml) + '</span></div>'
+        + '<div class="row"><span class="lb">方位</span><span class="val">' + esc(r.dir) + (r.present && r.dist >= 1.2 ? ' · 约 ' + distTxt : '') + '</span></div>'
+        + '<div class="row"><span class="lb">动作</span><span class="val">' + esc(r.look) + '</span></div>'
+        + '<div class="row"><span class="lb">他说</span><span class="val">“' + esc(r.say) + '”</span></div>'
+        + '<button class="rd-close" data-act="rd-close">收起</button></div>';
+      document.body.appendChild(d);
+      d.addEventListener('click', function (e) { if (e.target.closest('[data-act="rd-close"]')) d.remove() });
+    }
+  }
+
+  function doScan() {
+    var btn = document.getElementById('rdBtn'), sweep = document.getElementById('rdSweep');
+    if (btn) { btn.textContent = '扫描中…'; btn.disabled = true }
+    if (sweep) sweep.classList.add('fast');
+    var st = document.getElementById('rdStatus'); if (st) st.textContent = '正在捕捉他的频段…';
+    setTimeout(function () {
+      var r = scan();
+      paint(r);
+      if (btn) { btn.disabled = false; btn.textContent = '再扫一次' }
+      if (sweep) sweep.classList.remove('fast');
+    }, 4200);
+  }
+
+  document.addEventListener('click', function (e) {
+    var t = e.target; if (!t || !t.closest) return;
+    if (t.closest('[data-act="rd-scan"]')) { doScan(); return }
+    if (t.closest('#rdAvatar')) { openDetail(); return }
+  });
+
+  window.renderRadar = renderRadar;
+})();
+
+/* ================= 心声（查手机里的一个 App）=================
+   把最近聊天 + 人设发给 AI，生成陆沉"心里真正想说的话"（心声），
+   一条条钉在软木板上。生成的存 state.phone.xsNotes，进备份。 */
+(function () {
+  if (window.__xinsheng) return; window.__xinsheng = 1;
+
+  function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;') }
+  function P() { return (typeof phoneEnsure === 'function' ? phoneEnsure() : (state && state.phone)) || {} }
+
+  function noteHtml(n) {
+    var ref = n.card ? ('<div class="xs-ref">回 <b>“' + esc(n.card) + '”</b> 时，他心里想的是</div>') : '';
+    return '<div class="xs-note"><span class="xs-pin"></span>' + ref
+      + '<div class="xs-heart">' + esc(n.heart) + '</div>'
+      + '<div class="xs-time">' + esc(n.t || '') + '</div></div>';
+  }
+
+  function xinshengHTML() {
+    var p = P(); var notes = p.xsNotes || [];
+    var body = notes.length ? notes.slice(-6).map(noteHtml).join('') : '<div class="xs-empty">还没有心声，点下面生成。</div>';
+    return '<div class="xs-board">' + body + '</div>'
+      + '<button class="xs-gen" data-act="xs-gen">' + (window.__xsBusy ? '生成中…' : '让 AI 听听他的心声') + '</button>'
+      + '<div class="xs-tip">把最近的聊天发给 AI，结合他的设定，生成他嘴上没说出口的话。<br>（也可能看完整段聊天后，他心里的想法）</div>';
+  }
+
+  function parseLines(txt) {
+    var lines = String(txt || '').split(/\r?\n/).map(function (l) { return l.replace(/^[\s\-*·0-9.、]+/, '').trim() }).filter(function (l) { return l.length >= 2 });
+    return lines.slice(0, 6);
+  }
+
+  window.xinshengGenerate = function () {
+    if (window.__xsBusy) return;
+    var p = P(); var cfg = p.api || {};
+    if (!cfg.key) { if (typeof toast2 === 'function') toast2('先去「设置」配好 AI'); return }
+    var ctx = (typeof phoneAIContext === 'function') ? phoneAIContext({ chatN: 30 }) : null;
+    if (!ctx || !(ctx.chat || []).length) { if (typeof toast2 === 'function') toast2('还没有你们的聊天记录'); return }
+
+    window.__xsBusy = true;
+    var btn = document.querySelector('[data-act="xs-gen"]'); if (btn) btn.textContent = '生成中…';
+
+    var sys = '你是陆沉。下面给你一段设定和"你最近和她的聊天记录"。请写出 4~6 条你心里真正想说的话（心声/想法）：不是你会回复她的字卡，而是你看着她、看完这段聊天之后，没说出口的那句话。每条一行，第一人称，短句，克制又藏不住地想她。不要编号、不要解释、不要引号。';
+    var chatTxt = (ctx.chat || []).map(function (m) { return (m.from === 'him' ? '陆沉：' : '她：') + m.text }).join('\n');
+    var user = '设定：' + JSON.stringify(ctx.profile || {}) + '\n\n最近聊天：\n' + chatTxt;
+
+    var base = String(cfg.base || '').replace(/\/+$/, '');
+    fetch(base + '/chat/completions', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', 'Authorization': 'Bearer ' + cfg.key },
+      body: JSON.stringify({ model: cfg.model || 'gpt-4o-mini', temperature: 0.7, messages: [{ role: 'system', content: sys }, { role: 'user', content: user }] })
+    }).then(function (r) { return r.json() }).then(function (j) {
+      var txt = (j && j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content) || '';
+      if (!txt) throw new Error('empty');
+      var lines = parseLines(txt);
+      var now = new Date(); var hm = ('0' + now.getHours()).slice(-2) + ':' + ('0' + now.getMinutes()).slice(-2);
+      p.xsNotes = (p.xsNotes || []).concat(lines.map(function (l) { return { heart: l, t: hm } }));
+      try { save() } catch (e) { }
+      var b = document.querySelector('[data-act="xs-gen"]');
+      if (b && b.closest('#hpBody')) {
+        var board = b.closest('#hpBody').querySelector('.xs-board');
+        if (board) board.innerHTML = (p.xsNotes || []).slice(-6).map(noteHtml).join('');
+      }
+    }).catch(function (e) {
+      if (typeof toast2 === 'function') toast2('AI 没成功：' + (e && e.message ? e.message : '网络') + '（先去设置里试连接）');
+    }).finally(function () {
+      window.__xsBusy = false;
+      var b = document.querySelector('[data-act="xs-gen"]'); if (b) b.textContent = '让 AI 听听他的心声';
+    });
+  };
+
+  window.xinshengHTML = xinshengHTML;
+
+  document.addEventListener('click', function (e) {
+    var t = e.target; if (!t || !t.closest) return;
+    if (t.closest('[data-act="xs-gen"]')) { window.xinshengGenerate(); return }
+  });
+})();
+
+/* ================= 小屋互动层 =================
+   在原有小屋（40-room.js）之上加互动：
+   · 陆沉出现在房间、按时间走动、点他说话
+   · 昼夜 / 雨天 / 周末切换（改变房间色调 + 他的位置）
+   · 留言板：你留言，他回来时从字卡库抽一条回复，只显示最新 3 条
+   · 布置模式：拖家具 / 轻点旋转 / 点 × 回收
+   · 买家具他会点评（沿用 rm-buy，补一句点评）
+   余额仍用钱包（roomMoney 已是 wallet.balance）。 */
+(function () {
+  if (window.__roomLive) return; window.__roomLive = 1;
+
+  var TIMES = [['day', '白天'], ['evening', '傍晚'], ['night', '深夜'], ['rain', '雨天'], ['weekend', '周末']];
+  var SPOTS = [['床上', '46%', '58%'], ['椅子上', '60%', '70%'], ['窗边', '22%', '38%'], ['门口', '82%', '22%'], ['地毯上', '44%', '76%'], ['书架旁', '80%', '30%']];
+  var GONE = { day: true, evening: false, night: false, rain: false, weekend: false };
+  var LINES = {
+    day: ['他去公司了，房间空着。'],
+    evening: ['你来了。过来坐。', '今天有点累，看到你就好多了。', '晚上想吃什么？'],
+    night: ['还不睡？', '灯留给你。我先在这边。', '别熬太晚。'],
+    rain: ['下雨了，站窗边等雨停。', '伞在门口，出门记得带。', '雨声很好听，你听。'],
+    weekend: ['周末，我都在家。', '今天想做什么？', '陪你看个电影，还是就待着？', '我去给你冲杯咖啡。']
+  };
+  var BUY_REPLY = ['这颜色不错。', '又乱花钱。', '放这挺好的。', '我很喜欢。', '你挑的，都好。'];
+
+  function pick(a) { return a[Math.floor(Math.random() * a.length)] }
+  function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;') }
+  function now() { return Date.now() }
+  function R() {
+    state.roomLive = state.roomLive || { t: 'evening', spot: 0, notes: [], arrange: false };
+    return state.roomLive;
+  }
+  function cardReply() {
+    try {
+      var cs = (state.cards || []).filter(function (c) { return c && String(c.text || '').trim() });
+      if (!cs.length) return '看到了。';
+      var c = pick(cs); return String(c.text).slice(0, 40);
+    } catch (e) { return '看到了。' }
+  }
+
+  function inject() {
+    var rl = R();
+    var room = document.querySelector('#view .rm-room');
+    if (!room) return;
+
+    /* 时间切换条 */
+    var tbar = document.getElementById('rmTimeBar');
+    if (!tbar) {
+      tbar = document.createElement('div'); tbar.id = 'rmTimeBar'; tbar.className = 'rm-timebar';
+      tbar.innerHTML = TIMES.map(function (x) { return '<button data-rt="' + x[0] + '">' + x[1] + '</button>' }).join('');
+      var tabs = document.querySelector('#view .rm-tabs');
+      if (tabs && tabs.parentNode) tabs.parentNode.insertBefore(tbar, tabs.nextSibling);
+      tbar.addEventListener('click', function (e) {
+        var b = e.target.closest('[data-rt]'); if (!b) return;
+        setTime(b.getAttribute('data-rt'));
+      });
+    }
+
+    /* 布置按钮 */
+    if (!document.getElementById('rmArrange')) {
+      var ab = document.createElement('button'); ab.id = 'rmArrange'; ab.className = 'rm-shop';
+      ab.textContent = '布置'; ab.setAttribute('data-act', 'rm-arrange');
+      var top = document.querySelector('#view .page-top');
+      if (top) top.appendChild(ab);
+    }
+
+    /* 陆沉 */
+    if (!document.getElementById('rmHim')) {
+      var him = document.createElement('div'); him.id = 'rmHim'; him.className = 'rm-him';
+      him.innerHTML = '<span class="rm-him-head">陆</span><span class="rm-him-body"></span>';
+      room.appendChild(him);
+      him.addEventListener('click', function (e) { e.stopPropagation(); speak() });
+    }
+
+    /* 气泡 */
+    if (!document.getElementById('rmBubble')) {
+      var bb = document.createElement('div'); bb.id = 'rmBubble'; bb.className = 'rm-bubble';
+      room.appendChild(bb);
+    }
+
+    /* 留言板 */
+    if (!document.getElementById('rmBoard')) {
+      var bd = document.createElement('div'); bd.id = 'rmBoard'; bd.className = 'rm-board';
+      bd.innerHTML = '<h4>留言板 · 贴给他的</h4><div class="rm-pins"></div>'
+        + '<div class="rm-boardrow"><input id="rmNote" placeholder="给陆沉留句话…"><button id="rmNoteAdd">贴上</button></div>';
+      var wrap = document.querySelector('#view .rm-wrap');
+      if (wrap) wrap.appendChild(bd);
+      document.getElementById('rmNoteAdd').addEventListener('click', addNote);
+    }
+
+    paint(rl);
+  }
+
+  function setTime(t) {
+    var rl = R(); rl.t = t; rl.spot = Math.floor(Math.random() * SPOTS.length);
+    try { save() } catch (e) { }
+    paint(rl);
+    var bb = document.getElementById('rmTimeBar');
+    if (bb) Array.prototype.forEach.call(bb.children, function (x) { x.classList.toggle('on', x.getAttribute('data-rt') === t) });
+  }
+
+  function paint(rl) {
+    var room = document.querySelector('#view .rm-room'); if (!room) return;
+    room.classList.remove('night', 'rain');
+    if (rl.t === 'night') room.classList.add('night');
+    if (rl.t === 'rain') room.classList.add('rain');
+    var him = document.getElementById('rmHim');
+    if (him) {
+      if (GONE[rl.t]) { him.classList.add('gone'); him.style.left = '6%'; him.style.top = '62%' }
+      else {
+        him.classList.remove('gone');
+        var s = SPOTS[rl.spot % SPOTS.length];
+        him.style.left = s[1]; him.style.top = s[2];
+      }
+    }
+    renderPins();
+  }
+
+  function speak() {
+    var rl = R(); var bb = document.getElementById('rmBubble'); if (!bb) return;
+    bb.textContent = GONE[rl.t] ? '他不在家，白天他在公司。' : pick(LINES[rl.t]);
+    bb.classList.add('on'); clearTimeout(bb._t); bb._t = setTimeout(function () { bb.classList.remove('on') }, 3000);
+  }
+
+  function renderPins() {
+    var host = document.querySelector('#view .rm-pins'); if (!host) return;
+    var rl = R(); var notes = rl.notes.slice(-3);
+    host.innerHTML = notes.map(function (n) { return '<div class="rm-pin">' + esc(n.text) + '<span class="rm-pin-who">— ' + esc(n.who) + '</span></div>' }).join('');
+  }
+
+  function addNote() {
+    var inp = document.getElementById('rmNote'); if (!inp) return;
+    var v = inp.value.trim(); if (!v) return;
+    var rl = R(); rl.notes.push({ who: '我', text: v, ts: now() });
+    inp.value = '';
+    renderPins();
+    var bb = document.getElementById('rmBubble'); if (bb) { bb.textContent = '贴好了。等他回来，会看到。'; bb.classList.add('on') }
+    /* 他回来（切到非白天）时从字卡抽一条回复 */
+    var _t = setInterval(function () {
+      if (!GONE[R().t]) { rl.notes.push({ who: '陆沉', text: cardReply(), ts: now() }); renderPins(); clearInterval(_t) }
+    }, 2600);
+  }
+
+  function arrange(on) {
+    var rl = R(); rl.arrange = on;
+    var items = document.querySelectorAll('#view .rm-it');
+    for (var i = 0; i < items.length; i++) {
+      items[i].classList.toggle('rm-arranging', on);
+      if (on && !items[i].querySelector('.rm-x')) {
+        var x = document.createElement('span'); x.className = 'rm-x'; x.textContent = '×'; items[i].appendChild(x);
+      } else if (!on) { var x2 = items[i].querySelector('.rm-x'); if (x2) x2.remove() }
+    }
+    var ab = document.getElementById('rmArrange'); if (ab) ab.textContent = on ? '完成' : '布置';
+  }
+
+  /* 点击委派 */
+  document.addEventListener('click', function (e) {
+    var t = e.target; if (!t || !t.closest) return;
+    if (t.closest('[data-act="rm-arrange"]')) { var rl = R(); arrange(!rl.arrange); return }
+    /* 布置模式：点 × 回收 */
+    var x = t.closest('.rm-x');
+    if (x && R().arrange) { e.preventDefault(); e.stopPropagation(); x.parentNode.remove(); return }
+    /* 买家具点评：rm-buy 已有扣款逻辑，这里补一句 */
+    var buy = t.closest('[data-act="rm-buy"]');
+    if (buy) { setTimeout(function () { var bb = document.getElementById('rmBubble'); if (bb) { bb.textContent = '买好了。' + pick(BUY_REPLY); bb.classList.add('on') } }, 300) }
+  });
+
+  /* 布置拖拽 + 轻点旋转 */
+  var dragEl = null, sx = 0, sy = 0, ox = 0, oy = 0, moved = false;
+  document.addEventListener('pointerdown', function (e) {
+    var f = e.target.closest && e.target.closest('.rm-it');
+    if (!f || !R().arrange) return;
+    if (e.target.closest('.rm-x')) return;
+    dragEl = f; moved = false;
+    var r = f.getBoundingClientRect(), room = document.querySelector('#view .rm-room').getBoundingClientRect();
+    sx = e.clientX; sy = e.clientY; ox = r.left - room.left; oy = r.top - room.top;
+    e.preventDefault();
+  });
+  document.addEventListener('pointermove', function (e) {
+    if (!dragEl) return;
+    var dx = e.clientX - sx, dy = e.clientY - sy;
+    if (Math.abs(dx) > 4 || Math.abs(dy) > 4) moved = true;
+    if (moved) { dragEl.style.left = (ox + dx) + 'px'; dragEl.style.top = (oy + dy) + 'px' }
+  });
+  document.addEventListener('pointerup', function () {
+    if (dragEl && !moved) { var deg = (dragEl.__rot || 0) + 45; dragEl.__rot = deg; dragEl.style.transform += ' rotate(' + deg + 'deg)' }
+    dragEl = null;
+  });
+
+  /* 每 7 秒走动 */
+  setInterval(function () {
+    var rl = R(); if (GONE[rl.t]) return;
+    rl.spot = (rl.spot + 1) % SPOTS.length;
+    var him = document.getElementById('rmHim'); if (!him) return;
+    var s = SPOTS[rl.spot % SPOTS.length];
+    him.style.left = s[1]; him.style.top = s[2];
+  }, 7000);
+
+  /* 挂在 renderRoomApp 之后 */
+  var _rr = window.renderRoomApp;
+  if (typeof _rr === 'function') {
+    window.renderRoomApp = function () {
+      var ret = _rr.apply(this, arguments);
+      setTimeout(inject, 0); setTimeout(inject, 300);
+      return ret;
+    };
+  }
 })();
 </script>
 <div id="ntfBar" style="display:none" onclick="ntfGo()"></div>
